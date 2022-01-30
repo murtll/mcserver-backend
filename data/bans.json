@@ -1,0 +1,14 @@
+[
+    {
+      "id": 1,
+      "picture": "/images/bans/unban.gif",
+      "name": "Разбан",
+      "price": 60
+    },
+    {
+      "id": 2,
+      "picture": "/images/bans/unmute.gif",
+      "name": "Размут",
+      "price": 290
+    }
+]

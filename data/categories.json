@@ -1,0 +1,18 @@
+[
+	{
+		"name": "Кейсы",
+		"link": "/cases"
+	},
+	{
+		"name": "Привилегии",
+		"link": "/privileges"
+	},
+	{
+		"name": "Донаты",
+		"link": "/money"
+	},
+	{
+		"name": "Разбаны",
+		"link": "/bans"
+	}
+]

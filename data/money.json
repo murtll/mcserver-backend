@@ -1,0 +1,26 @@
+[
+    {
+      "id": 1,
+      "picture": "/images/money/money1.png",
+      "name": "100 гемов",
+      "price": 60
+    },
+    {
+      "id": 2,
+      "picture": "/images/money/money2.png",
+      "name": "500 гемов",
+      "price": 290
+    },
+    {
+      "id": 3,
+      "picture": "/images/money/money3.png",
+      "name": "1000 гемов",
+      "price": 550
+    },
+    {
+      "id": 4,
+      "picture": "/images/money/money4.png",
+      "name": "3000 гемов",
+      "price": 1000
+    }
+]

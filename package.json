@@ -1,0 +1,17 @@
+{
+  "name": "site-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Server for mcbrawl",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "repository": "https://github.com/murtll/mcserver-site-backend",
+  "author": "murtll",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2"
+  }
+}
