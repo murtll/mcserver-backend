@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node backend/server.js"
   },
-  "repository": "https://github.com/murtll/mcserver-site-backend",
+  "repository": "https://github.com/murtll/mcserver-backend",
   "author": "murtll",
   "license": "MIT",
   "dependencies": {
