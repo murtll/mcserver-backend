@@ -1,4 +1,4 @@
-FROM node:14-stretch-slim
+FROM node:17-stretch-slim
 
 COPY package.json ./
 COPY yarn.lock ./
