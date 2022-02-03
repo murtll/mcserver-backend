@@ -70,3 +70,8 @@ export const updateCategory = (category) => {
 export const checkAuthKey = async (key) => {
     return crypto.createHash('sha256').update(key).digest('hex') === (await db.get('SELECT key FROM auth where id = 1')).key
 }
+
+export const getCategoryNameByItemId = async (id) => {
+    const catId = (await db.get('SELECT category_id FROM items WHERE id = ?', id)).category_id
+    return (await db.get('SELECT link FROM categories WHERE id = ?', catId)).link.substring(1)
+}
