@@ -75,3 +75,6 @@ export const getCategoryNameByItemId = async (id) => {
     const catId = (await db.get('SELECT category_id FROM items WHERE id = ?', id)).category_id
     return (await db.get('SELECT link FROM categories WHERE id = ?', catId)).link.substring(1)
 }
+export const getCategoryNameById = async (id) => {
+    return (await db.get('SELECT link FROM categories WHERE id = ?', id)).link.substring(1)
+}
