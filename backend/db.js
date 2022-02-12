@@ -24,7 +24,7 @@ export const selectCategories = () => {
 
 export const addItem = async (item) => {
     const catId = (await db.get(`select id from categories where link='/${item.category}'`)).id
-    await db.run('INSERT INTO items (picture, name, description, category_id, price) values (?, ?, ?, ?, ?)', [item.picture, item.name, item.description, catId, item.price])
+    await db.run('INSERT INTO items (picture, name, description, category_id, price, command) values (?, ?, ?, ?, ?, ?)', [item.picture, item.name, item.description, catId, item.price, item.command])
 }
 
 export const deleteItem = (item) => {
