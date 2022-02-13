@@ -39,7 +39,28 @@ app.get('/categories', async (req, res) => {
         const ans = await db.selectCategories()
         res.json(ans)
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
+    }
+})
+
+app.get('/item', async (req, res) => { 
+    try {
+        const item = await db.getItemById(req.query.id)
+        res.json(item)
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error: error.toString() })
+    }
+})
+
+app.get('/last-donates', async (req, res) => { 
+    try {
+        const donates = await db.getLastDonates() || []
+
+        res.json(donates)
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -48,7 +69,7 @@ app.get('/:category', async (req, res) => {
         const ans = await db.selectItems(req.params.category)
         res.json(ans)
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 

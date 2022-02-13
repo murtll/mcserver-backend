@@ -48,7 +48,7 @@ router.get('/say', async (req, res) => {
 })
 
 router.post('/process-payment', async (req, res) => {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    // const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
     // res.json({
     //     header: req.headers['x-forwarded-for'],
@@ -58,25 +58,42 @@ router.post('/process-payment', async (req, res) => {
 
     // TODO change IP checking to normal 
 
-    const trustedIps = [
-        '185.71.76.0/27',
-        '185.71.77.0/27',
-        '77.75.153.0/25',
-        '77.75.156.11',
-        '77.75.156.35',
-        '77.75.154.128/25',
-        '2a02:5180:0:1509::/64',
-        '2a02:5180:0:2655::/64',
-        '2a02:5180:0:1533::/64',
-        '2a02:5180:0:2669::/64'
-    ]
+    // const trustedIps = [
+    //     '185.71.76.0/27',
+    //     '185.71.77.0/27',
+    //     '77.75.153.0/25',
+    //     '77.75.156.11',
+    //     '77.75.156.35',
+    //     '77.75.154.128/25',
+    //     '2a02:5180:0:1509::/64',
+    //     '2a02:5180:0:2655::/64',
+    //     '2a02:5180:0:1533::/64',
+    //     '2a02:5180:0:2669::/64'
+    // ]
 
-    if (trustedIps.includes(ip)) {
-        res.json({ok: true})
-    } else {
-        res.json({error: 'Bad IP address'})
-    }
+    // if (trustedIps.includes(ip)) {
+    //     res.json({ok: true})
+    // } else {
+    //     res.json({error: 'Bad IP address'})
+    // }
     
+    const info = req.body
+
+    try {
+        const item = await db.getItemById(info.donateItemId)
+
+        // await rcon.connect()
+        // await rcon.send(item.command)
+        // rcon.end()
+
+        await db.addDonateInfo(info)
+
+        res.json({ok: true})
+
+    } catch(error) {
+        console.log(error);
+        res.status(400).json({ error: error.toString() })
+    }
 })
 
 export default router

@@ -78,3 +78,15 @@ export const getCategoryNameByItemId = async (id) => {
 export const getCategoryNameById = async (id) => {
     return (await db.get('SELECT link FROM categories WHERE id = ?', id)).link.substring(1)
 }
+
+export const getItemById = (id) => {
+    return db.get('SELECT * from items WHERE id = ?', id)
+}
+
+export const addDonateInfo = (info) => {
+    return db.run('INSERT INTO donates (donater_username, donate_item_id) VALUES (?, ?)', [info.donaterUsername, info.donateItemId])
+}
+
+export const getLastDonates = () => {
+    return db.all('SELECT donates.id as id, donater_username as donaterUsername, name, picture, price FROM donates INNER JOIN items on donates.donate_item_id = items.id ORDER BY donates.id DESC LIMIT 5')
+}
