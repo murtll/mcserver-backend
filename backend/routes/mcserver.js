@@ -57,6 +57,11 @@ router.post('/process-payment', async (req, res) => {
     
     try {
         const item = await db.getItemById(Number(info.ik_x_donate))
+		if (item.price !== Number(info.ik_am)) {
+			console.log('Invalid amount: ' + info.ik_am)
+			return res.status(400).json({ error: 'Invalid amount' })
+		}
+
 		if (item.command) {
 		   console.log(`sending ${item.command} to server`)
 		   await rcon.connect()
