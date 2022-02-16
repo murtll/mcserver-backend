@@ -50,45 +50,23 @@ router.get('/say', async (req, res) => {
 router.post('/process-payment', async (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     console.log('from: ' + ip)
-    // res.json({
-    //     header: req.headers['x-forwarded-for'],
-    //     socket: req.socket.remoteAddress,
-    //     req: req.ip
-    // })
-
-    // TODO change IP checking to normal 
-
-    // const trustedIps = [
-    //     '185.71.76.0/27',
-    //     '185.71.77.0/27',
-    //     '77.75.153.0/25',
-    //     '77.75.156.11',
-    //     '77.75.156.35',
-    //     '77.75.154.128/25',
-    //     '2a02:5180:0:1509::/64',
-    //     '2a02:5180:0:2655::/64',
-    //     '2a02:5180:0:1533::/64',
-    //     '2a02:5180:0:2669::/64'
-    // ]
-
-    // if (trustedIps.includes(ip)) {
-    //     res.json({ok: true})
-    // } else {
-    //     res.json({error: 'Bad IP address'})
-    // }
+    const trustedInterkassaIp = '35.233.69.55'
     
     const info = req.body
-//    console.log(req)
     console.log(info)
     
     try {
-        // const item = await db.getItemById(info.donate)
+        const item = await db.getItemById(Number(info.ik_x_donate))
+		if (item.command) {
+		   console.log(`sending ${item.command} to server`)
+		   await rcon.connect()
+           await rcon.send(item.command)
+           rcon.end()
+		} else {
+		   console.log('No command for item')
+		}
 
-        // await rcon.connect()
-        // await rcon.send(item.command)
-        // rcon.end()
-
-        // await db.addDonateInfo(info)
+        await db.addDonateInfo(Number(info.ik_x_donate), info.ik_x_username)
 
         res.json({ok: true})
 

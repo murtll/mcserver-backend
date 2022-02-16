@@ -83,8 +83,8 @@ export const getItemById = (id) => {
     return db.get('SELECT * from items WHERE id = ?', id)
 }
 
-export const addDonateInfo = (info) => {
-    return db.run('INSERT INTO donates (donater_username, donate_item_id) VALUES (?, ?)', [info.username, info.donate])
+export const addDonateInfo = (donate, username) => {
+    return db.run('INSERT INTO donates (donater_username, donate_item_id) VALUES (?, ?)', [username, donate])
 }
 
 export const getLastDonates = () => {
