@@ -48,8 +48,8 @@ router.get('/say', async (req, res) => {
 })
 
 router.post('/process-payment', async (req, res) => {
-    // const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
-
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    console.log('from: ' + ip)
     // res.json({
     //     header: req.headers['x-forwarded-for'],
     //     socket: req.socket.remoteAddress,
@@ -78,18 +78,21 @@ router.post('/process-payment', async (req, res) => {
     // }
     
     const info = req.body
-
+//    console.log(req)
+    console.log(info)
+    
     try {
-        const item = await db.getItemById(info.donateItemId)
+        // const item = await db.getItemById(info.donate)
 
         // await rcon.connect()
         // await rcon.send(item.command)
         // rcon.end()
 
-        await db.addDonateInfo(info)
+        // await db.addDonateInfo(info)
 
         res.json({ok: true})
 
+//		res.redirect('http://localhost:3000')
     } catch(error) {
         console.log(error);
         res.status(400).json({ error: error.toString() })
