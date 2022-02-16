@@ -63,9 +63,10 @@ router.post('/process-payment', async (req, res) => {
 		}
 
 		if (item.command) {
-		   console.log(`sending ${item.command} to server`)
+		   const command = item.command.replaceAll('%user%', info.ik_x_username)
+		   console.log(`sending ${command} to server`)
 		   await rcon.connect()
-           await rcon.send(item.command)
+           await rcon.send(command)
            rcon.end()
 		} else {
 		   console.log('No command for item')
