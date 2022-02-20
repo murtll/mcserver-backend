@@ -56,13 +56,15 @@ router.post('/kassa-redirect', async(req, res) => {
         return
     }
 
+    const donateId = `${req.body.username}-${item.id}-${new Date().getTime()}`
+
     if (req.body.kassa === 'interkassa') {
-        const redirectUrl = `https://sci.interkassa.com?ik_co_id=620be9b760703a40c27176e2&ik_pm_no=ID_4233&ik_am=${item.price}&ik_cur=rub&ik_desc=${item.name}&ik_suc_u=${req.body.successRedirect}&ik_suc_m=get&ik_ia_u=https://mcbrawl.ru:3002/mcserver/process-payment&ik_ia_m=post&ik_x_donate=${item.id}&ik_x_username=${req.body.username}&ik_cli=${req.body.email}`
+        const redirectUrl = `https://sci.interkassa.com?ik_co_id=620be9b760703a40c27176e2&ik_pm_no=${donateId}&ik_am=${item.price}&ik_cur=rub&ik_desc=${item.name}&ik_suc_u=${req.body.successRedirect}&ik_suc_m=get&ik_ia_u=https://mcbrawl.ru:3002/mcserver/process-payment&ik_ia_m=post&ik_x_donate=${item.id}&ik_x_username=${req.body.username}&ik_cli=${req.body.email}`
 
         res.json({redirectUrl: redirectUrl})
         return    
     } else if (req.body.kassa === 'freekassa') {
-        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${item.price}&currency=RUB&o=ID_4233&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&s=${md5(`12389:${item.price}:*dJ*[cc.S$fkuyI:RUB:ID_4233`)}`
+        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${item.price}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&s=${md5(`12389:${item.price}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
 
         res.json({redirectUrl: redirectUrl})
         return    
