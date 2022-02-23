@@ -71,7 +71,7 @@ router.post('/process-payment', async (req, res) => {
 		if (item.command) {
             var command = item.command.replaceAll('%user%', info.ik_x_username)
 
-            if (info.ik_x_number > 1)
+            if (info.ik_x_number)
     		   command = command.replaceAll('%number%', info.ik_x_number)
         
 		   console.log(`sending ${command} to server`)
@@ -115,7 +115,7 @@ router.post('/process-payment-fk', async (req, res) => {
 
 		if (item.command) {
 	    	var command = item.command.replaceAll('%user%', info.us_username)
-            if (info.us_number > 1)
+            if (info.us_number)
     		   command = command.replaceAll('%number%', info.us_number)
 		
            console.log(`sending ${command} to server`)
