@@ -8,6 +8,9 @@ const router = express.Router()
 
 var rcon = null
 
+const calculateSale = (number) => Math.round(50 / (Math.pow(Math.E, 3 - (number / Math.pow(Math.PI, 2))) + 1))
+const calculatePrice = (price, number) => number > 1 ? number * Math.round(price * ((100 - calculateSale(number)) / 100)) : price
+
 export const connectToRcon = () => {
     rcon = new Rcon({
         host: process.env.RCON_HOST, 
@@ -24,34 +27,10 @@ export const connectToRcon = () => {
     })
 }
 
-// router.get('/help', async (req, res) => {
-//     try {
-//         await rcon.connect()
-//         const ans = await rcon.send('help')
-//         rcon.end()
-//         res.json({ help: ans })
-//     } catch (error) {
-//         console.log(error)
-//         res.status(400).json({ help: error.toString() })
-//     }
-// })
-
-// router.get('/say', async (req, res) => {
-//     try {
-//         await rcon.connect()
-//         const ans = await rcon.send(`say ${req.query.phrase}`)
-//         rcon.end()
-//         res.json({ result: 'success' })
-//     } catch (error) {
-//         console.log(error)
-//         res.status(400).json({ help: error.toString() })
-//     }
-// })
-
 router.post('/kassa-redirect', async(req, res) => {    
     const item = await db.getItemById(Number(req.body.itemId))
 
-    if (item.price !== req.body.price) {
+    if (item.price !== req.body.price || item.max_number < req.body.number || item.min_number > req.body.number) {
         res.status(400).json({error: 'Invalid price for item'})
         return
     }
@@ -59,12 +38,12 @@ router.post('/kassa-redirect', async(req, res) => {
     const donateId = `${req.body.username}-${item.id}-${new Date().getTime()}`
 
     if (req.body.kassa === 'interkassa') {
-        const redirectUrl = `https://sci.interkassa.com?ik_co_id=620be9b760703a40c27176e2&ik_pm_no=${donateId}&ik_am=${item.price}&ik_cur=rub&ik_desc=${item.name}&ik_suc_u=${req.body.successRedirect}&ik_suc_m=get&ik_ia_u=https://mcbrawl.ru:3002/mcserver/process-payment&ik_ia_m=post&ik_x_donate=${item.id}&ik_x_username=${req.body.username}&ik_cli=${req.body.email}`
+        const redirectUrl = `https://sci.interkassa.com?ik_co_id=620be9b760703a40c27176e2&ik_pm_no=${donateId}&ik_am=${calculatePrice(item.price, req.body.number)}&ik_cur=rub&ik_desc=${item.name + ' x' + req.body.number}&ik_suc_u=${req.body.successRedirect}&ik_suc_m=get&ik_ia_u=https://mcbrawl.ru:3002/mcserver/process-payment&ik_ia_m=post&ik_x_donate=${item.id}&ik_x_username=${req.body.username}&ik_x_number=${req.body.number}&ik_cli=${req.body.email}`
 
         res.json({redirectUrl: redirectUrl})
         return    
     } else if (req.body.kassa === 'freekassa') {
-        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${item.price}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&s=${md5(`12389:${item.price}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
+        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${calculatePrice(item.price, req.body.number)}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&s=${md5(`12389:${item.price}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
 
         res.json({redirectUrl: redirectUrl})
         return    
@@ -84,13 +63,17 @@ router.post('/process-payment', async (req, res) => {
     
     try {
         const item = await db.getItemById(Number(info.ik_x_donate))
-		if (item.price !== Number(info.ik_am)) {
-			console.log('Invalid amount: ' + info.ik_am)
+		if (calculatePrice(item.price, info.ik_x_number) !== Number(info.ik_am)) {
+			console.log('Invalid amount: ' + info.ik_am + ' Real price: ' + calculatePrice(item.price, info.ik_x_number))
 			return res.status(400).json({ error: 'Invalid amount' })
 		}
 
 		if (item.command) {
-		   const command = item.command.replaceAll('%user%', info.ik_x_username)
+            if (info.ik_x_number > 1)
+    		   const command = item.command.replaceAll('%user%', info.ik_x_username).replaceAll('%number%', info.ik_x_number)
+            else
+	    	   const command = item.command.replaceAll('%user%', info.ik_x_username)
+        
 		   console.log(`sending ${command} to server`)
 		   await rcon.connect()
            await rcon.send(command)
@@ -125,14 +108,18 @@ router.post('/process-payment-fk', async (req, res) => {
     
     try {
         const item = await db.getItemById(Number(info.us_donate))
-		if (item.price !== Number(info.AMOUNT)) {
-			console.log('Invalid amount: ' + info.AMOUNT)
+		if (calculatePrice(item.price, info.us_number) !== Number(info.AMOUNT)) {
+			console.log('Invalid amount: ' + info.AMOUNT + ' Real price: ' + calculatePrice(item.price, info.us_number))
 			return res.status(400).json({ error: 'Invalid amount' })
 		}
 
 		if (item.command) {
-		   const command = item.command.replaceAll('%user%', info.us_username)
-		   console.log(`sending ${command} to server`)
+            if (info.us_number > 1)
+    		   const command = item.command.replaceAll('%user%', info.us_username).replaceAll('%number%', info.us_number)
+            else
+	    	   const command = item.command.replaceAll('%user%', info.us_username)
+		
+           console.log(`sending ${command} to server`)
 		   await rcon.connect()
            await rcon.send(command)
            rcon.end()
