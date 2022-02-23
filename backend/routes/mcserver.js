@@ -69,10 +69,10 @@ router.post('/process-payment', async (req, res) => {
 		}
 
 		if (item.command) {
+            var command = item.command.replaceAll('%user%', info.ik_x_username)
+
             if (info.ik_x_number > 1)
-    		   const command = item.command.replaceAll('%user%', info.ik_x_username).replaceAll('%number%', info.ik_x_number)
-            else
-	    	   const command = item.command.replaceAll('%user%', info.ik_x_username)
+    		   command = command.replaceAll('%number%', info.ik_x_number)
         
 		   console.log(`sending ${command} to server`)
 		   await rcon.connect()
@@ -114,10 +114,9 @@ router.post('/process-payment-fk', async (req, res) => {
 		}
 
 		if (item.command) {
+	    	var command = item.command.replaceAll('%user%', info.us_username)
             if (info.us_number > 1)
-    		   const command = item.command.replaceAll('%user%', info.us_username).replaceAll('%number%', info.us_number)
-            else
-	    	   const command = item.command.replaceAll('%user%', info.us_username)
+    		   command = command.replaceAll('%number%', info.us_number)
 		
            console.log(`sending ${command} to server`)
 		   await rcon.connect()
