@@ -83,10 +83,10 @@ export const getItemById = (id) => {
     return db.get('SELECT * from items WHERE id = ?', id)
 }
 
-export const addDonateInfo = (donate, username) => {
-    return db.run('INSERT INTO donates (donater_username, donate_item_id) VALUES (?, ?)', [username, donate])
+export const addDonateInfo = (donate, username, amount) => {
+    return db.run('INSERT INTO donates (donater_username, donate_item_id, amount) VALUES (?, ?, ?)', [username, donate, amount])
 }
 
 export const getLastDonates = () => {
-    return db.all('SELECT donates.id as id, donater_username as donaterUsername, items.id as itemId, items.name as name, picture, price, categories.link FROM donates INNER JOIN items on donates.donate_item_id = items.id INNER JOIN categories on items.category_id = categories.id ORDER BY donates.id DESC LIMIT 5')
+    return db.all('SELECT donates.id as id, donater_username as donaterUsername, items.id as itemId, items.name as name, picture, price, categories.link, donates.amount as amount FROM donates INNER JOIN items on donates.donate_item_id = items.id INNER JOIN categories on items.category_id = categories.id ORDER BY donates.id DESC LIMIT 5')
 }

@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload'
 import dotenv from 'dotenv'
 
 import adminRouter from './routes/admin.js'
+import serverInfoRouter from './routes/serverinfo.js'
 import mcServerRouter, { connectToRcon } from './routes/mcserver.js'
 
 dotenv.config()
@@ -75,6 +76,7 @@ app.get('/:category', async (req, res) => {
 
 app.use('/admin', adminRouter)
 app.use('/mcserver', mcServerRouter)
+app.use('/serverinfo', serverInfoRouter)
 
 app.listen(PORT, () => {
     console.log(`Server started at http://localhost:${PORT}`)

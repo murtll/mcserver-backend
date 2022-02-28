@@ -82,7 +82,7 @@ router.post('/process-payment', async (req, res) => {
 		   console.log('No command for item')
 		}
 
-        await db.addDonateInfo(Number(info.ik_x_donate), info.ik_x_username)
+        await db.addDonateInfo(Number(info.ik_x_donate), info.ik_x_username, Number(info.ik_x_number))
 
         res.json({ok: true})
 
@@ -126,7 +126,7 @@ router.post('/process-payment-fk', async (req, res) => {
 		   console.log('No command for item')
 		}
 
-        await db.addDonateInfo(Number(info.us_donate), info.us_username)
+        await db.addDonateInfo(Number(info.us_donate), info.us_username, Number(info.us_number))
 
         res.json({ok: true})
 
