@@ -90,3 +90,11 @@ export const addDonateInfo = (donate, username, amount) => {
 export const getLastDonates = () => {
     return db.all('SELECT donates.id as id, donater_username as donaterUsername, items.id as itemId, items.name as name, picture, price, categories.link, donates.amount as amount FROM donates INNER JOIN items on donates.donate_item_id = items.id INNER JOIN categories on items.category_id = categories.id ORDER BY donates.id DESC LIMIT 5')
 }
+
+export const getOnlineStats = () => {
+	return db.all('SELECT number, time FROM online_stats ORDER BY time DESC LIMIT 10')
+}
+
+export const addOnlineStat = (number, time) => {
+	return db.run('INSERT INTO online_stats (number, time) VALUES (?, ?)', [number, time])
+}
