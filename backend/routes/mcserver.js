@@ -43,7 +43,7 @@ router.post('/kassa-redirect', async(req, res) => {
         res.json({redirectUrl: redirectUrl})
         return    
     } else if (req.body.kassa === 'freekassa') {
-        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${calculatePrice(item.price, req.body.number)}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&s=${md5(`12389:${item.price}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
+        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${calculatePrice(item.price, req.body.number)}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&s=${md5(`12389:${calculatePrice(item.price, req.body.number)}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
 
         res.json({redirectUrl: redirectUrl})
         return    

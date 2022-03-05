@@ -95,6 +95,14 @@ export const getOnlineStats = () => {
 	return db.all('SELECT number, time FROM online_stats ORDER BY time DESC LIMIT 10')
 }
 
+export const getLastStat = () => {
+    return db.get('SELECT * FROM online_stats ORDER BY time DESC LIMIT 1')
+}
+
+export const updateStat = (id, number, time) => {
+    return db.run('UPDATE online_stats SET number=?, time=? WHERE id=?', [number, time, id])
+}
+
 export const addOnlineStat = (number, time) => {
 	return db.run('INSERT INTO online_stats (number, time) VALUES (?, ?)', [number, time])
 }
