@@ -168,5 +168,41 @@ router.post('/image', async (req, res) => {
     }
 })
 
+router.post('/promo', async (req, res) => {
+    try {
+        if (!(await db.checkAuthKey(req.headers.authorization))) {
+            res.status(400).json({
+                error: 'Invalid key'
+            })
+            return
+        }
+
+        await db.addPromo(req.body)
+
+        res.json({ added: req.body })
+
+    } catch (error) {
+        res.status(400).json({ error: error })
+    }
+})
+
+router.delete('/promo', async (req, res) => {
+    try {
+        if (!(await db.checkAuthKey(req.headers.authorization))) {
+            res.status(400).json({
+                error: 'Invalid key'
+            })
+            return
+        }
+
+        await db.deletePromo(req.body)
+
+        res.json({ deleted: req.body })
+
+    } catch (error) {
+        res.status(400).json({ error: error })
+    }
+})
+
 
 export default router

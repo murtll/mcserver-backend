@@ -68,6 +68,20 @@ app.get('/last-donates', async (req, res) => {
     }
 })
 
+
+app.get('/check-promo', async (req, res) => { 
+    try {
+        const promoInfo = await db.getPromo(req.query.promo)
+	if (promoInfo)
+            res.json({ multiplier: promoInfo.multiplier })
+	else
+	    res.status(400).json({ error: 'No such promo.' })
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error: error.toString() })
+    }
+})
+
 app.get('/:category', async (req, res) => {
     try {
         const ans = await db.selectItems(req.params.category)

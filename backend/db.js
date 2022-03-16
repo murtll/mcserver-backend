@@ -88,7 +88,7 @@ export const addDonateInfo = (donate, username, amount) => {
 }
 
 export const getLastDonates = () => {
-    return db.all('SELECT donates.id as id, donater_username as donaterUsername, items.id as itemId, items.name as name, picture, price, categories.link, donates.amount as amount FROM donates INNER JOIN items on donates.donate_item_id = items.id INNER JOIN categories on items.category_id = categories.id ORDER BY donates.id DESC LIMIT 5')
+    return db.all('SELECT donates.id as id, donater_username as donaterUsername, items.id as itemId, items.name as name, picture, price, categories.link, donates.amount as amount, date FROM donates INNER JOIN items on donates.donate_item_id = items.id INNER JOIN categories on items.category_id = categories.id ORDER BY donates.id DESC LIMIT 5')
 }
 
 export const getOnlineStats = () => {
@@ -105,4 +105,24 @@ export const updateStat = (id, number, time) => {
 
 export const addOnlineStat = (number, time) => {
 	return db.run('INSERT INTO online_stats (number, time) VALUES (?, ?)', [number, time])
+}
+
+export const checkIfPaymentExists = (paymentId) => {
+	return db.get('SELECT * FROM donates where payment_id=? LIMIT 1', [paymentId])
+}
+
+export const getTopDonaters = () => {
+	return db.all('SELECT donater_username, sum(payment_price) FROM donates GROUP BY donater_username ORDER BY sum(payment_price) DESC')
+}
+
+export const getPromo = (promo) => {
+	return db.get('SELECT * FROM promos WHERE name=?', [promo])
+}
+
+export const addPromo = (promo) => {
+	return db.run('INSERT INTO promos (name, multiplier) VALUES (?, ?)', [promo.name, promo.multiplier])
+}
+
+export const deletePromo = (promo) => {
+	return db.run('DELETE FROM promos where id=?', [promo.id])
 }

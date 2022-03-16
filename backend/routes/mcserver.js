@@ -29,6 +29,9 @@ export const connectToRcon = () => {
 
 router.post('/kassa-redirect', async(req, res) => {    
     const item = await db.getItemById(Number(req.body.itemId))
+    let promo = null
+    if (req.body.promo)
+    	promo = await db.getPromo(req.body.promo)
 
     if (item.price !== req.body.price || item.max_number < req.body.number || item.min_number > req.body.number) {
         res.status(400).json({error: 'Invalid price for item'})
@@ -43,7 +46,8 @@ router.post('/kassa-redirect', async(req, res) => {
         res.json({redirectUrl: redirectUrl})
         return    
     } else if (req.body.kassa === 'freekassa') {
-        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${calculatePrice(item.price, req.body.number)}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&s=${md5(`12389:${calculatePrice(item.price, req.body.number)}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
+	const resultPrice = Math.round((promo ? promo.multiplier : 1) * calculatePrice(item.price, req.body.number))
+        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${resultPrice}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&us_promo=${req.body.promo || ''}&s=${md5(`12389:${resultPrice}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
 
         res.json({redirectUrl: redirectUrl})
         return    
@@ -106,9 +110,15 @@ router.post('/process-payment-fk', async (req, res) => {
     const info = req.body
     console.log(info)
     
+    if (await db.checkIfPaymentExists(info.intid)) return res.status(400).json({ error: 'Payment already exists.' })
+    
+    let promo = null
+    if (req.body.us_promo)
+    	promo = await db.getPromo(req.body.us_promo)
+    
     try {
         const item = await db.getItemById(Number(info.us_donate))
-		if (calculatePrice(item.price, info.us_number) !== Number(info.AMOUNT)) {
+		if (Math.round((promo ? promo.multiplier : 1) * calculatePrice(item.price, info.us_number)) !== Number(info.AMOUNT)) {
 			console.log('Invalid amount: ' + info.AMOUNT + ' Real price: ' + calculatePrice(item.price, info.us_number))
 			return res.status(400).json({ error: 'Invalid amount' })
 		}
@@ -118,7 +128,7 @@ router.post('/process-payment-fk', async (req, res) => {
             if (info.us_number)
     		   command = command.replaceAll('%number%', info.us_number)
 		
-           console.log(`sending ${command} to server`)
+           console.log(`sending "${command}" to server`)
 		   await rcon.connect()
            await rcon.send(command)
            rcon.end()
