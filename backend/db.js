@@ -116,7 +116,7 @@ export const getTopDonaters = () => {
 }
 
 export const getPromo = (promo) => {
-	return db.get('SELECT * FROM promos WHERE name=?', [promo])
+	return db.get('SELECT * FROM promos WHERE name=UPPER(?)', [promo])
 }
 
 export const addPromo = (promo) => {
