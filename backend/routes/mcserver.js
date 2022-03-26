@@ -136,7 +136,7 @@ router.post('/process-payment-fk', async (req, res) => {
 		   console.log('No command for item')
 		}
 
-        await db.addDonateInfo(Number(info.us_donate), info.us_username, Number(info.us_number))
+        await db.addDonateInfo(Number(info.us_donate), info.us_username, Number(info.us_number), Date.now(), info.MERCHANT_ORDER_ID, Number(info.AMOUNT))
 
         res.json({ok: true})
 
