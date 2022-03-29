@@ -21,16 +21,23 @@ OnlineStatsJob.start()
 
 const app = express()
 
+// to disable x-powered-by header
+app.disable('x-powered-by')
+
 // for application/json parsing
 app.use(express.json())
+
 // for application/form-data parsing (uploading images)
 app.use(express.urlencoded({ extended: true }))
+
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: 'public/images'
 }))
+
 // for cors support
 app.use(cors())
+
 // for image sharing
 app.use(express.static('public'))
 

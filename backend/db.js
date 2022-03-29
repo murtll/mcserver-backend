@@ -15,7 +15,7 @@ export const openDb = async () => {
 
 export const selectItems = async (category) => {
     const catId = (await db.get(`select id from categories where link='/${category}'`)).id
-    return await db.all('SELECT * FROM items where category_id = ?', [catId])
+    return await db.all('SELECT id, name, picture, description, category_id, price, min_number, max_number FROM items where category_id = ?', [catId])
 }
 
 export const selectCategories = () => {
@@ -80,7 +80,7 @@ export const getCategoryNameById = async (id) => {
 }
 
 export const getItemById = (id) => {
-    return db.get('SELECT * from items WHERE id = ?', id)
+    return db.get('SELECT id, name, picture, description, category_id, price, min_number, max_number from items WHERE id = ?', id)
 }
 
 export const addDonateInfo = (donate, username, amount, date, payment_id, payment_price) => {
