@@ -58,6 +58,9 @@ router.post('/kassa-redirect', async(req, res) => {
 })
 
 router.post('/process-payment', async (req, res) => {
+    
+    return res.status(400).json({ error: 'Not available' })
+
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     console.log('from: ' + ip)
     const trustedInterkassaIp = '35.233.69.55'

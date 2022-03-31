@@ -56,7 +56,7 @@ app.get('/categories', async (req, res) => {
 
 app.get('/item', async (req, res) => { 
     try {
-        const item = await db.getItemById(req.query.id)
+        const item = await db.getPublicItemById(req.query.id)
         res.json(item)
     } catch (error) {
         console.log(error);
@@ -91,7 +91,7 @@ app.get('/check-promo', async (req, res) => {
 
 app.get('/:category', async (req, res) => {
     try {
-        const ans = await db.selectItems(req.params.category)
+        const ans = await db.selectPublicItems(req.params.category)
         res.json(ans)
     } catch (error) {
         res.status(400).json({ error: error.toString() })
