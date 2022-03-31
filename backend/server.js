@@ -1,9 +1,9 @@
 import express from 'express'
-import fs from 'fs'
 import cors from 'cors'
 import * as db from './db.js'
 import fileUpload from 'express-fileupload'
 import dotenv from 'dotenv'
+import session from 'express-session'
 
 import adminRouter from './routes/admin.js'
 import serverInfoRouter from './routes/serverinfo.js'
@@ -25,6 +25,14 @@ const app = express()
 app.disable('x-powered-by')
 
 // for application/json parsing
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    cookie: { maxAge: 3600000 },
+    saveUninitialized: true
+}))
+
+// for application/json parsing
 app.use(express.json())
 
 // for application/form-data parsing (uploading images)
@@ -35,11 +43,11 @@ app.use(fileUpload({
     tempFileDir: 'public/images'
 }))
 
-// for cors support
-app.use(cors())
-
 // for image sharing
 app.use(express.static('public'))
+
+// for cors support
+app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
 
 app.get('/', (req, res) => {
     res.json({ status: 'OK' })

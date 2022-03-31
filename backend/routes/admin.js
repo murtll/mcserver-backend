@@ -1,10 +1,11 @@
 import express from 'express'
 import fs from 'fs'
 import * as db from '../db.js'
+import { auth } from '../auth.js'
 
 const router = express.Router()
 
-router.post('/item', async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
         if (!(await db.checkAuthKey(req.headers.authorization))) {
             res.status(400).json({
@@ -13,6 +14,17 @@ router.post('/item', async (req, res) => {
             return
         }
 
+        req.session.admin = true
+
+        res.sendStatus(200)
+
+    } catch (error) {
+        res.status(400).json({ error: error })
+    }
+})
+
+router.post('/item', auth, async (req, res) => {
+    try {
         await db.addItem(req.body)
 
         res.json({ added: req.body })
@@ -22,15 +34,8 @@ router.post('/item', async (req, res) => {
     }
 })
 
-router.put('/item', async (req, res) => {
+router.put('/item', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-
         await db.updateItem(req.body)
 
         res.json({ updated: req.body })
@@ -40,15 +45,8 @@ router.put('/item', async (req, res) => {
     }
 })
 
-router.delete('/item', async (req, res) => {
+router.delete('/item', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-
         await db.deleteItem(req.body)
 
         res.json({ deleted: req.body })
@@ -58,15 +56,17 @@ router.delete('/item', async (req, res) => {
     }
 })
 
-router.post('/category', async (req, res) => {
+router.get('/categories', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
+        const ans = await db.selectCategories()
+        res.json(ans)
+    } catch (error) {
+        res.status(400).json({ error: error.toString() })
+    }
+})
 
+router.post('/category', auth, async (req, res) => {
+    try {
         await db.addCategory(req.body)
 
         res.json({ added: req.body })
@@ -76,15 +76,8 @@ router.post('/category', async (req, res) => {
     }
 })
 
-router.put('/category', async (req, res) => {
+router.put('/category', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-
         await db.updateCategory(req.body)
 
         res.json({ updated: req.body })
@@ -94,15 +87,8 @@ router.put('/category', async (req, res) => {
     }
 })
 
-router.delete('/category', async (req, res) => {
+router.delete('/category', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-
         await db.deleteCategory(req.body)
 
         res.json({ deleted: req.body })
@@ -112,7 +98,7 @@ router.delete('/category', async (req, res) => {
     }
 })
 
-router.get('/images', async (req, res) => {
+router.get('/images', auth, async (req, res) => {
     try {
         const data = []
         for (const folder of (await fs.promises.readdir('public/images'))) {
@@ -132,15 +118,8 @@ router.get('/images', async (req, res) => {
     }
 })
 
-router.post('/image', async (req, res) => {
+router.post('/image', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-    
         if (req.files.picture) {
             const image = req.files.picture;
             const category = req.body.category ? req.body.category : await db.getCategoryNameById(req.body.category_id)
@@ -168,14 +147,15 @@ router.post('/image', async (req, res) => {
     }
 })
 
-router.post('/promo', async (req, res) => {
+router.post('/promo', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
+
+        if (!String(req.body.name) || 
+            !Number(req.body.multiplier) || 
+            Number(req.body.multiplier) >= 1 || 
+            Number(req.body.multiplier) <= 0) {
+                return res.sendStatus(400)
+            }
 
         await db.addPromo(req.body)
 
@@ -186,15 +166,8 @@ router.post('/promo', async (req, res) => {
     }
 })
 
-router.delete('/promo', async (req, res) => {
+router.delete('/promo', auth, async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
-            res.status(400).json({
-                error: 'Invalid key'
-            })
-            return
-        }
-
         await db.deletePromo(req.body)
 
         res.json({ deleted: req.body })
@@ -204,5 +177,24 @@ router.delete('/promo', async (req, res) => {
     }
 })
 
+router.get('/promos', auth, async (req, res) => {
+    try {
+        const result = await db.getAllPromos()
+
+        res.json(result)
+
+    } catch (error) {
+        res.status(400).json({ error: error })
+    }
+})
+
+router.get('/:category', auth, async (req, res) => {
+	try {
+		const ans = await db.selectItems(req.params.category)
+		res.json(ans)
+	} catch (error) {
+		res.status(400).json({ error: error.toString() })
+	}
+})
 
 export default router

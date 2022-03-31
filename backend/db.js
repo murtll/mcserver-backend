@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import crypto from 'crypto'
 
-var db = null
+let db = null
 
 export const openDb = async () => {
     sqlite3.verbose()
@@ -126,11 +126,15 @@ export const getTopDonaters = () => {
 }
 
 export const getPromo = (promo) => {
-	return db.get('SELECT * FROM promos WHERE name=UPPER(?)', [promo])
+	return db.get('SELECT * FROM promos WHERE UPPER(name)=UPPER(?)', [promo])
+}
+
+export const getAllPromos = () => {
+	return db.all('SELECT * FROM promos')
 }
 
 export const addPromo = (promo) => {
-	return db.run('INSERT INTO promos (name, multiplier) VALUES (?, ?)', [promo.name, promo.multiplier])
+	return db.run('INSERT INTO promos (name, multiplier) VALUES (?, ?)', [promo.name.toUpperCase(), promo.multiplier])
 }
 
 export const deletePromo = (promo) => {
