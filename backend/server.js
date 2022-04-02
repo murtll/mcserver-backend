@@ -33,7 +33,6 @@ app.use(session({
         sameSite: 'strict',
         maxAge: 3600000, 
         path: '/admin', 
-        secure: process.env.ENVIRONMENT == 'prod'
     },
     saveUninitialized: false
 }))
