@@ -6,7 +6,7 @@ import md5 from 'md5'
 
 const router = express.Router()
 
-var rcon = null
+let rcon = null
 
 const calculateSale = (number) => Math.round(50 / (Math.pow(Math.E, 3 - (number / Math.pow(Math.PI, 2))) + 1))
 const calculatePrice = (price, number) => number > 1 ? number * Math.round(price * ((100 - calculateSale(number)) / 100)) : price
@@ -46,8 +46,8 @@ router.post('/kassa-redirect', async(req, res) => {
         res.json({redirectUrl: redirectUrl})
         return    
     } else if (req.body.kassa === 'freekassa') {
-	const resultPrice = Math.round((promo ? promo.multiplier : 1) * calculatePrice(item.price, req.body.number))
-        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${resultPrice}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&us_promo=${req.body.promo || ''}&s=${md5(`12389:${resultPrice}:*dJ*[cc.S$fkuyI:RUB:${donateId}`)}`
+	    const resultPrice = Math.round((promo ? promo.multiplier : 1) * calculatePrice(item.price, req.body.number))
+        const redirectUrl = `https://pay.freekassa.ru?m=12389&oa=${resultPrice}&currency=RUB&o=${donateId}&em=${req.body.email}&lang=ru&us_donate=${item.id}&us_username=${req.body.username}&us_number=${req.body.number}&us_promo=${req.body.promo || ''}&s=${md5(`12389:${resultPrice}:${process.env.FK_SIGN}:RUB:${donateId}`)}`
 
         res.json({redirectUrl: redirectUrl})
         return    
@@ -103,12 +103,12 @@ router.post('/process-payment-fk', async (req, res) => {
     const trustedIps = ['168.119.157.136', '168.119.60.227', '138.201.88.124', '178.154.197.79']
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    
+    console.log('from: ' + ip)
 
     if (!trustedIps.includes(ip)) {
         res.status(400).json({ error: 'Bad IP' })
     }
-
-    console.log('from: ' + ip)
 
     const info = req.body
     console.log(info)
@@ -131,12 +131,12 @@ router.post('/process-payment-fk', async (req, res) => {
             if (info.us_number)
     		   command = command.replaceAll('%number%', info.us_number)
 		
-           console.log(`sending "${command}" to server`)
-		   await rcon.connect()
-           await rcon.send(command)
-           rcon.end()
+            console.log(`sending "${command}" to server`)
+		    await rcon.connect()
+            await rcon.send(command)
+            rcon.end()
 		} else {
-		   console.log('No command for item')
+		    console.log('No command for item')
 		}
 
         await db.addDonateInfo(Number(info.us_donate), info.us_username, Number(info.us_number), Date.now(), info.MERCHANT_ORDER_ID, Number(info.AMOUNT))

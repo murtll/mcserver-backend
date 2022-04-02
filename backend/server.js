@@ -26,10 +26,16 @@ app.disable('x-powered-by')
 
 // for application/json parsing
 app.use(session({
+    // store: ,
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    cookie: { maxAge: 3600000 },
-    saveUninitialized: true
+    resave: false,
+    cookie: {
+        sameSite: 'strict',
+        maxAge: 3600000, 
+        path: '/admin', 
+        secure: process.env.ENVIRONMENT == 'prod'
+    },
+    saveUninitialized: false
 }))
 
 // for application/json parsing
