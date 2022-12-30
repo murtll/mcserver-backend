@@ -2,8 +2,27 @@ import express from 'express'
 import fs from 'fs'
 import * as db from '../db.js'
 import { auth } from '../auth.js'
+import { rcon } from '../rcon.js'
 
 const router = express.Router()
+
+router.post('/command', auth, async (req, res) => {
+    console.log(req.body)
+    try {
+        const command = req.body.command
+        console.log(`sending ${command} to server`)
+        await rcon.connect()
+        const response = await rcon.send(command)
+
+        console.log(response)
+
+        rcon.end()
+
+        res.json({ ok: true, message: response })
+    } catch (error) {
+        res.status(400).json({ error: error.toString() })
+    }
+})
 
 router.post('/login', async (req, res) => {
     try {

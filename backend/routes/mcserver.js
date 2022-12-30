@@ -1,31 +1,13 @@
 import express from 'express'
 import fs from 'fs'
 import * as db from '../db.js'
-import { Rcon } from 'rcon-client'
 import md5 from 'md5'
+import { rcon } from '../rcon.js'
 
 const router = express.Router()
 
-let rcon = null
-
 const calculateSale = (number) => Math.round(50 / (Math.pow(Math.E, 3 - (number / Math.pow(Math.PI, 2))) + 1))
 const calculatePrice = (price, number) => number > 1 ? number * Math.round(price * ((100 - calculateSale(number)) / 100)) : price
-
-export const connectToRcon = () => {
-    rcon = new Rcon({
-        host: process.env.RCON_HOST, 
-        port: Number(process.env.RCON_PORT), 
-        password: process.env.RCON_PASS
-    })
-
-    rcon.on("connect", () => console.log("RCON connected"))
-    rcon.on("authenticated", () => console.log("RCON authenticated"))
-    rcon.on("end", () => console.log("RCON end"))
-    rcon.on("error", (e) => {
-        console.log("RCON error")
-        console.log(e)
-    })
-}
 
 router.post('/kassa-redirect', async(req, res) => {    
     const item = await db.getItemById(Number(req.body.itemId))

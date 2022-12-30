@@ -7,7 +7,8 @@ import session from 'express-session'
 
 import adminRouter from './routes/admin.js'
 import serverInfoRouter from './routes/serverinfo.js'
-import mcServerRouter, { connectToRcon } from './routes/mcserver.js'
+import mcServerRouter from './routes/mcserver.js'
+import { connectToRcon } from './rcon.js'
 import { OnlineStatsJob } from './cron.js'
 
 dotenv.config()
@@ -17,7 +18,6 @@ const PORT = process.env.PORT || 3001
 db.openDb()
 connectToRcon()
 OnlineStatsJob.start()
-
 
 const app = express()
 
