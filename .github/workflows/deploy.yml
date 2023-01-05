@@ -13,10 +13,9 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '*'
-      - '.*'
     paths:
+      - '!**'
+      - '!.**'
       - '.github/workflows/deploy.yml'
       - 'docker-compose.yml'
 
@@ -29,7 +28,7 @@ jobs:
 
       - name: Set image name and tag
         run: |
-          if [[ -n ${{ inputs.image }} ]]; then IMAGE=${{ inputs.image }}; else IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY##*/}; fi
+          if [[ -n ${{ inputs.image }} ]]; then IMAGE=${{ inputs.image }}; else IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY##*/}"; fi
           if [[ -n ${{ inputs.tag }} ]]; then TAG=${{ inputs.tag }}; else TAG=latest; fi
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
