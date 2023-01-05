@@ -4,7 +4,8 @@ services:
   backend:
     image: ${IMAGE}:${TAG}
     restart: always
-    expose: ${PORT}
+    expose:
+      - ${PORT}
     environment:
       PORT: ${PORT}
       RCON_HOST: ${RCON_HOST}

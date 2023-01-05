@@ -53,6 +53,7 @@ jobs:
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           ORIGIN: ${{ secrets.ORIGIN }}
           FK_SIGN: ${{ secrets.FK_SIGN }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           IMAGE: ${{ env.IMAGE }}
           TAG: ${{ env.TAG }}
 
