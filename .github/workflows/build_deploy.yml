@@ -50,5 +50,5 @@ jobs:
     uses: murtll/mcserver-backend/.github/workflows/deploy.yml@master
     secrets: inherit
     with:
-      image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ needs.build.outputs.image_name }}
+      image: ${{ needs.build.outputs.image_name }}
       tag: ${{ needs.build.outputs.image_tag }}
