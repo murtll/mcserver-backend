@@ -1,6 +1,6 @@
 FROM node:17-stretch-slim
 
-RUN apt update && apt install build-essential python -y
+RUN apt update && apt install build-essential python wget -y
 
 COPY package.json ./
 COPY yarn.lock ./
@@ -8,7 +8,5 @@ COPY yarn.lock ./
 RUN yarn
 
 COPY . .
-
-EXPOSE 3001
 
 CMD ["yarn", "start"]
