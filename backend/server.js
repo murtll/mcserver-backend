@@ -24,7 +24,7 @@ const app = express()
 // to disable x-powered-by header
 app.disable('x-powered-by')
 
-// for application/json parsing
+// for session cookies
 app.use(session({
     // store: ,
     secret: process.env.SESSION_SECRET,
