@@ -31,8 +31,8 @@ jobs:
 
       - name: Set image name and tag
         run: |
-          if [[ -n ${{ inputs.image }} ]]; then IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.image }}"; else IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY##*/}"; fi
-          if [[ -n ${{ inputs.tag }} ]]; then TAG=${{ inputs.tag }}; else TAG=latest; fi
+          if [[ -n "${{ inputs.image }}" ]]; then IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.image }}"; else IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY##*/}"; fi
+          if [[ -n "${{ inputs.tag }}" ]]; then TAG=${{ inputs.tag }}; else TAG=latest; fi
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
 
