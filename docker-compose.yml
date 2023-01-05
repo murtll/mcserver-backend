@@ -6,6 +6,9 @@ services:
     restart: always
     expose:
       - ${PORT}
+    volumes:
+      - sqlite-data:/app/data:rw
+      - public-images:/app/public:rw
     environment:
       PORT: ${PORT}
       RCON_HOST: ${RCON_HOST}
@@ -36,3 +39,7 @@ networks:
   traefik-net:
     external: true
     name: traefik-net
+
+volumes:
+  sqlite-data:
+  public-images:
