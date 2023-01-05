@@ -22,6 +22,9 @@ on:
 jobs:
   deploy:
     name: Deploy
+    environment:
+      name: master
+      url: https://mcbrawl.ru/api/
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2

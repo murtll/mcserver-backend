@@ -44,9 +44,7 @@ jobs:
             see workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   deploy:
-    environment:
-      name: master
-      url: https://mcbrawl.ru/api/
+    name: Deploy
     needs:
       - build
     uses: murtll/mcserver-backend/.github/workflows/deploy.yml@master
