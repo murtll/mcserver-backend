@@ -50,7 +50,7 @@ jobs:
       url: https://mcbrawl.ru/api/
     needs:
       - build
-    uses: ./.github/workflows/deploy.yml@master
+    uses: murtll/mcserver-backend/.github/workflows/deploy.yml@master
     secrets: inherit
     with:
       image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ needs.build.outputs.image_name }}
