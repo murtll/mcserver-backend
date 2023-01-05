@@ -9,6 +9,8 @@ services:
     volumes:
       - sqlite-data:/app/data:rw
       - public-images:/app/public:rw
+    networks:
+      - trarfik-net
     environment:
       PORT: ${PORT}
       RCON_HOST: ${RCON_HOST}
