@@ -32,7 +32,7 @@ app.use(session({
     cookie: {
         sameSite: 'strict',
         maxAge: 3600000, 
-        path: '/api/admin', 
+        path: '/admin', 
     },
     saveUninitialized: false
 }))
