@@ -44,7 +44,6 @@ jobs:
             see workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   deploy:
-    name: Deploy
     environment:
       name: master
       url: https://mcbrawl.ru/api/
