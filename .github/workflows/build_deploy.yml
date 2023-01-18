@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       image_name: ${{ steps.envs.outputs.image_name }}
-      image_tag: ${{ steps.envs.outputs.image_tag }}
+      image_tag: ${{ steps.bump-version.outputs.next-version }}
     steps:
       - uses: actions/checkout@v2
 
@@ -24,13 +24,54 @@ jobs:
           echo image_tag=$(echo $GITHUB_SHA | cut -c 1-8) >> $GITHUB_OUTPUT
         id: envs
 
+      - name: Get previous tag
+        id: previous-tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+      - name: Get commit message
+        run: |
+          COMMIT_MSG="$(git log --pretty=format:"%s" -n 1)"
+          VERSION_FRAGMENT=$(echo $COMMIT_MSG | awk '{ print $1 }' | sed 's/://g')
+          if [[ "$VERSION_FRAGMENT" != 'feature' && "$VERSION_FRAGMENT" != 'major' && "$VERSION_FRAGMENT" != 'bug' ]]; then
+            VERSION_FRAGMENT = 'bug'
+          fi
+          echo "VERSION_FRAGMENT=$VERSION_FRAGMENT" >> $GITHUB_ENV
+
+      - name: Bump patch version
+        id: bump-version
+        uses: christian-draeger/increment-semantic-version@1.0.2
+        with:
+          current-version: ${{ steps.previous-tag.outputs.tag }}
+          version-fragment: ${{ env.VERSION_FRAGMENT }}
+
+      - name: Make changelog
+        continue-on-error: true
+        id: changelog
+        shell: bash
+        run: |
+          MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
+          GIT_LOG="$(git log --pretty=format:"%s" $MY_SHA..HEAD | uniq)"
+          echo "$GIT_LOG" > RELEASE.md
+          
+      - name: Create release
+        if: ${{ always() }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump-version.outputs.next-version }}
+          release_name: ${{ steps.bump-version.outputs.next-version }}
+          draft: false
+          prerelease: false
+          body_path: RELEASE.md
+
       - name: Build and push image
         run: |
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           docker build . \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:${{ steps.envs.outputs.image_tag }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:${{ steps.bump-version.outputs.next-version }} \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:${{ steps.envs.outputs.image_tag }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:${{ steps.bump-version.outputs.next-version }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:latest
 
       - name: Failure notify
