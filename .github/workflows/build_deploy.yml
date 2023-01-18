@@ -44,6 +44,27 @@ jobs:
           current-version: ${{ steps.previous-tag.outputs.tag }}
           version-fragment: ${{ env.VERSION_FRAGMENT }}
 
+      - name: Make changelog
+        continue-on-error: true
+        id: changelog
+        shell: bash
+        run: |
+          MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
+          GIT_LOG="$(git log --pretty=format:"%s" $MY_SHA..HEAD | uniq)"
+          echo "$GIT_LOG" > RELEASE.md
+          
+      - name: Create release
+        if: ${{ always() }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump-version.outputs.next-version }}
+          release_name: ${{ steps.bump-version.outputs.next-version }}
+          draft: false
+          prerelease: false
+          body_path: RELEASE.md
+
       - name: Build and push image
         run: |
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
