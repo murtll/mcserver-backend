@@ -55,7 +55,7 @@ jobs:
         run: |
           MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
           GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
-          echo "### Changes\n" > RELEASE.md
+          echo "### Changes" > RELEASE.md
           echo "$GIT_LOG" >> RELEASE.md
           
       - name: Create release
