@@ -10,14 +10,18 @@ on:
       tag:
         required: true
         type: string
-  push:
-    branches:
-      - master
-    paths:
-      - '!**'
-      - '!.**'
-      - '.github/workflows/deploy.yml'
-      - 'docker-compose.yml'
+  # push:
+  #   branches:
+  #     - master
+  #   paths-ignore:
+  #     - '.github/workflows/build_deploy.yml'
+  #     - 'backend/**'
+  #     - 'public/**'
+  #     - '.dockerignore'
+  #     - '.gitignore'
+  #     - 'Dockerfile'
+  #     - 'package.json'
+  #     - 'yarn.lock'
 
 jobs:
   deploy:
