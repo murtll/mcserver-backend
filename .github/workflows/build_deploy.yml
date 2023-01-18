@@ -37,6 +37,7 @@ jobs:
           CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
 
           while read LINE; do
+            echo $LINE
             printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE"
             CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE") )
           done < .dockerignore
