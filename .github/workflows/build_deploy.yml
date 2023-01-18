@@ -38,7 +38,7 @@ jobs:
           printf '%s\n' "${CHANGED[@]}"
           
           while read LINE; do
-            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE" | cat) )
+            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "^$LINE" | cat) )
 
             if [[ -z "${CHANGED[@]}" ]]; then
               echo "All files are in .dockerignore -> no new version"
