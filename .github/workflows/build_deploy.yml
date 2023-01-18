@@ -6,8 +6,9 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.github/workflows/deploy.yml'
+      - '.github/**'
       - 'docker-compose.yml'
+      - '.gitiignore'
 
 jobs:
   build:
@@ -33,7 +34,7 @@ jobs:
           COMMIT_MSG="$(git log --pretty=format:"%s" -n 1)"
           VERSION_FRAGMENT=$(echo $COMMIT_MSG | awk '{ print $1 }' | sed 's/://g')
           if [[ "$VERSION_FRAGMENT" != 'feature' && "$VERSION_FRAGMENT" != 'major' && "$VERSION_FRAGMENT" != 'bug' ]]; then
-            VERSION_FRAGMENT = 'bug'
+            VERSION_FRAGMENT='bug'
           fi
           echo "VERSION_FRAGMENT=$VERSION_FRAGMENT" >> $GITHUB_ENV
 
