@@ -18,7 +18,9 @@ jobs:
       image_name: ${{ steps.envs.outputs.image_name }}
       image_tag: ${{ steps.bump-version.outputs.next-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - run: |
           echo image_name=${GITHUB_REPOSITORY##*/} >> $GITHUB_OUTPUT
@@ -28,6 +30,8 @@ jobs:
       - name: Get previous tag
         id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: 1.0.0
 
       - name: Get commit message
         run: |
