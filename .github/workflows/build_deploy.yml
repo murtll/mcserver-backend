@@ -33,8 +33,14 @@ jobs:
 
       - name: Check if it is new version
         run: |
+          git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only
           CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
-          while read LINE; do CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE") ); done < .dockerignore
+
+          while read LINE; do
+            printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE"
+            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE") )
+          done < .dockerignore
+
           if [[ -n "${CHANGED[@]}" ]]; then
             echo NEW_VERSION=true >> $GITHUB_ENV
           fi
