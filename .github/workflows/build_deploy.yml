@@ -33,17 +33,24 @@ jobs:
 
       - name: Check if it is new version
         run: |
-          git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only
           CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
-
+          echo "Changed files since last tag (${{ steps.previous-tag.outputs.tag }}):"
+          printf '%s\n' "${CHANGED[@]}"
+          
           while read LINE; do
-            echo $LINE
-            printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE"
-            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE") )
+            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "$LINE" | cat) )
+
+            if [[ -z "${CHANGED[@]}" ]]; then
+              echo "All files are in .dockerignore -> no new version"
+              exit 0
+            fi
           done < .dockerignore
 
           if [[ -n "${CHANGED[@]}" ]]; then
             echo NEW_VERSION=true >> $GITHUB_ENV
+              echo "Files"
+              printf '%s\n' "${CHANGED[@]}"
+              echo "are not in .dockerignore -> it's new version"
           fi
 
       - name: Get commit message
