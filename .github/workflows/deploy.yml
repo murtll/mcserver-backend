@@ -27,12 +27,20 @@ jobs:
       url: https://mcbrawl.ru/api/
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: latest-tag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: 1.0.0
 
       - name: Set image name and tag
         run: |
           if [[ -n "${{ inputs.image }}" ]]; then IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.image }}"; else IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY##*/}"; fi
-          if [[ -n "${{ inputs.tag }}" ]]; then TAG=${{ inputs.tag }}; else TAG=latest; fi
+          if [[ -n "${{ inputs.tag }}" ]]; then TAG=${{ inputs.tag }}; else TAG=${{ steps.latest-tag.outputs.tag }}; fi
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
 
