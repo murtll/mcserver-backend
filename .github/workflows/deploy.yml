@@ -27,7 +27,7 @@ jobs:
   deploy:
     name: Deploy
     environment:
-      name: master
+      name: ${{ github.ref_name }}
       url: https://mcbrawl.ru/api/
     runs-on: ubuntu-22.04
     steps:
