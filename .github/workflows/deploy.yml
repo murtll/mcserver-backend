@@ -28,7 +28,7 @@ jobs:
     name: Deploy
     environment:
       name: ${{ github.ref_name }}
-      url: https://mcbrawl.ru/api/
+      url: ${{ github.ref_name == 'master' && https://mcbrawl.ru/api/ || https://dev.mcbrawl.ru/api/ }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
