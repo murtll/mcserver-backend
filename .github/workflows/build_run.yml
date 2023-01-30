@@ -20,6 +20,6 @@ jobs:
         run: |
           mkdir -p data/
           touch data/database.db
-          docker run --name test -e PORT=3000 -v $(pwd)/data/:/app/data ${{ github.repository }}
+          docker run -d --name test -e PORT=3000 -v $(pwd)/data/:/app/data ${{ github.repository }}
           sleep 5
           docker exec test curl --fail http://localhost:3000/
