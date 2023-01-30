@@ -127,6 +127,7 @@ jobs:
     needs:
       - build
     uses: murtll/mcserver-backend/.github/workflows/deploy.yml@master
+    if: ${{ github.ref_name == 'master' }}
     secrets: inherit
     with:
       image: ${{ needs.build.outputs.image_name }}
