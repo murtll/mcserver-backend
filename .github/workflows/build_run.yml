@@ -20,7 +20,11 @@ jobs:
         run: |
           mkdir -p data/
           touch data/database.db          
-          docker run -d --name test -e PORT=${{ env.PORT }} -v $(pwd)/data/:/app/data ${{ github.repository }}
+          docker run -d \
+                     --name test \
+                     -e PORT=${{ env.PORT }} \
+                     -e SESSION_SECRET=fakesecret \
+                     -v $(pwd)/data/:/app/data ${{ github.repository }}
           sleep 5
           docker exec test wget --no-verbose --tries=1 --spider http://localhost:${{ env.PORT }}/
         env:
