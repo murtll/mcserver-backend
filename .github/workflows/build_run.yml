@@ -1,4 +1,4 @@
-name: Check build
+name: Build and run
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
+  build_run:
+    name: Build and run
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,7 +16,7 @@ jobs:
         run: |
           docker build -t ${{ github.repository }} .
 
-      - name: Test run container
+      - name: Run container
         run: |
           docker run --name test -e PORT=3000 ${{ github.repository }}
           sleep 5
