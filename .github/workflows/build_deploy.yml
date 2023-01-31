@@ -1,5 +1,8 @@
 name: Build and deploy
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+
 on:
   workflow_dispatch:
   push:
@@ -12,6 +15,9 @@ on:
 
 jobs:
   build:
+    concurrency:
+      group: ${{ github.job }}-${{ github.ref_name }}
+      cancel-in-progress: true
     name: Build
     runs-on: ubuntu-22.04
     outputs:
