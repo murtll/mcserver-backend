@@ -5,7 +5,9 @@
   "description": "Server for mcbrawl",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run"
   },
   "repository": "https://github.com/murtll/mcserver-backend",
   "author": "murtll",
@@ -18,7 +20,9 @@
     "express": "^4.17.2",
     "express-fileupload": "^1.3.1",
     "express-session": "^1.17.2",
+    "knex": "^2.4.2",
     "md5": "^2.3.0",
+    "pg": "^8.9.0",
     "rcon-client": "^4.2.3",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"

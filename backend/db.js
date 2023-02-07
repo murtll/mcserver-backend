@@ -1,8 +1,17 @@
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
 import crypto from 'crypto'
 
-let db = null
+import knex from 'knex'
+
+const db = knex({
+    client: 'pg',
+    connection: {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        user: process.env.DB_USER || 'test',
+        password: process.env.DB_PASSWORD || 'test',
+        database: process.env.DB_NAME || 'test'
+    }
+})
 
 export const openDb = async () => {
     sqlite3.verbose()
