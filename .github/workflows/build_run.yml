@@ -18,14 +18,29 @@ jobs:
 
       - name: Run container
         run: |
-          mkdir -p data/
-          touch data/database.db          
+          docker network create test --attachable
+          docker run -it
+                     -e POSTGRES_USER=${{ env.DB_USER }} \
+                     -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
+                     -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
           docker run -d \
                      --name test \
+                     -e NODE_ENV=prod \
                      -e PORT=${{ env.PORT }} \
-                     -e SESSION_SECRET=fakesecret \
-                     -v $(pwd)/data/:/app/data ${{ github.repository }}
+                     -e DB_PORT=5432 \
+                     -e DB_NAME=${{ env.DB_NAME }} \
+                     -e DB_USER=${{ env.DB_USER }} \
+                     -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
+                     -e SESSION_SECRET=fakesecret ${{ github.repository }}
           sleep 5
           docker exec test wget --no-verbose --tries=1 --spider http://localhost:${{ env.PORT }}/
         env:
           PORT: 3000
+          DB_NAME: test
+          DB_USER: test
+          DB_PASSWORD: test
+
+      - name: Test migrations and seeds
+        run: |
+          docker exec test yarn migrate
+          docker exec test yarn seed
