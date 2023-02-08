@@ -44,3 +44,8 @@ jobs:
         run: |
           docker exec test yarn migrate
           docker exec test yarn seed
+
+      - name: Tail logs
+        if: ${{ failure() }}
+        run: |
+          docker logs test
