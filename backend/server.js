@@ -15,7 +15,6 @@ dotenv.config()
 
 const PORT = process.env.PORT || 3001
 
-db.openDb()
 connectToRcon()
 OnlineStatsJob.start()
 
