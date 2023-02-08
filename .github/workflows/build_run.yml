@@ -19,7 +19,7 @@ jobs:
       - name: Run container
         run: |
           docker network create test --attachable
-          docker run -it
+          docker run -it \
                      -e POSTGRES_USER=${{ env.DB_USER }} \
                      -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
                      -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
