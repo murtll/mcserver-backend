@@ -2,10 +2,11 @@ import express from 'express'
 import fs from 'fs'
 import * as db from '../db.js'
 import { auth } from '../auth.js'
-import { rcon } from '../rcon.js'
+import { getRcon } from '../rcon.js'
 import crypto from 'crypto'
 
 const router = express.Router()
+const rcon = getRcon()
 
 const adminKeyHash = process.env.ADMIN_KEY
 

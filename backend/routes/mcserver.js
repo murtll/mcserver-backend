@@ -1,10 +1,10 @@
 import express from 'express'
-import fs from 'fs'
 import * as db from '../db.js'
 import md5 from 'md5'
-import { rcon } from '../rcon.js'
+import { getRcon } from '../rcon.js'
 
 const router = express.Router()
+const rcon = getRcon()
 
 const calculateSale = (number) => Math.round(50 / (Math.pow(Math.E, 3 - (number / Math.pow(Math.PI, 2))) + 1))
 const calculatePrice = (price, number) => number > 1 ? number * Math.round(price * ((100 - calculateSale(number)) / 100)) : price
