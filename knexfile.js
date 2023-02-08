@@ -2,7 +2,7 @@
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 const config = {
-  prod: {
+  master: {
     client: "pg",
     connection: {
       host: process.env.DB_HOST || 'localhost',
@@ -19,7 +19,7 @@ const config = {
       tableName: "knex_migrations"
     }
   },
-  dev: {
+  development: {
     client: "pg",
     connection: {
       host: 'localhost',
