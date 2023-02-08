@@ -1,5 +1,18 @@
 import Knex from 'knex'
 import knexConfig from '../knexfile.js'
+import pg from 'pg'
+
+pg.types.setTypeParser(pg.types.builtins.INT8, (value) => {
+   return parseInt(value);
+});
+
+pg.types.setTypeParser(pg.types.builtins.FLOAT8, (value) => {
+    return parseFloat(value);
+});
+
+pg.types.setTypeParser(pg.types.builtins.NUMERIC, (value) => {
+    return parseFloat(value);
+});
 
 const env = process.env.NODE_ENV || 'dev'
 
