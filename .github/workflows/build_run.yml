@@ -25,7 +25,7 @@ jobs:
                      -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
           docker run -d \
                      --name test \
-                     -e NODE_ENV=prod \
+                     -e NODE_ENV=master \
                      -e PORT=${{ env.PORT }} \
                      -e DB_PORT=5432 \
                      -e DB_NAME=${{ env.DB_NAME }} \
