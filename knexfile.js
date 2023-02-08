@@ -1,3 +1,6 @@
+/**
+ * @type { Object.<string, import("knex").Knex.Config> }
+ */
 const config = {
   prod: {
     client: "pg",
