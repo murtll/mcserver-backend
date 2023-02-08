@@ -11,4 +11,6 @@ RUN yarn && yarn global add knex
 
 COPY . .
 
-CMD ["yarn", "start"]
+RUN chmod +x *.sh
+
+ENTRYPOINT entrypoint.sh
