@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 import Knex from 'knex'
 import knexConfig from '../knexfile.js'
 
@@ -57,10 +55,6 @@ export const updateCategory = (category) => {
     console.log(updated)
     return updated
 }
-
-// export const checkAuthKey = async (key) => {
-//     return crypto.createHash('sha256').update(key).digest('hex') === (await db.get('SELECT key FROM auth where id = 1')).key
-// }
 
 export const getCategoryNameByItemId = async (id) => {
     const catId = (await db('items').first('category_id').where({ id: id })).category_id
