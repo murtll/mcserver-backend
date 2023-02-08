@@ -20,7 +20,7 @@ jobs:
         run: |
           docker network create ${{ env.NETWORK }} --attachable
           docker run -d \
-                     --name ${{ env.DB_HOST }}
+                     --name ${{ env.DB_HOST }} \
                      --network ${{ env.NETWORK }} \
                      -e POSTGRES_USER=${{ env.DB_USER }} \
                      -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
