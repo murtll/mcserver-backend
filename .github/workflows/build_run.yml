@@ -18,16 +18,20 @@ jobs:
 
       - name: Run container
         run: |
-          docker network create test --attachable
+          docker network create ${{ env.NETWORK }} --attachable
           docker run -d \
+                     --name ${{ env.DB_HOST }}
+                     --network ${{ env.NETWORK }} \
                      -e POSTGRES_USER=${{ env.DB_USER }} \
                      -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
                      -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
           docker run -d \
                      --name test \
+                     --network ${{ env.NETWORK }} \
                      -e NODE_ENV=master \
                      -e PORT=${{ env.PORT }} \
                      -e DB_PORT=5432 \
+                     -e DB_HOST=${{ env.DB_HOST }} \
                      -e DB_NAME=${{ env.DB_NAME }} \
                      -e DB_USER=${{ env.DB_USER }} \
                      -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
@@ -39,6 +43,8 @@ jobs:
           DB_NAME: test
           DB_USER: test
           DB_PASSWORD: test
+          DB_HOST: test-db
+          NETWORK: test
 
       - name: Test migrations and seeds
         run: |
