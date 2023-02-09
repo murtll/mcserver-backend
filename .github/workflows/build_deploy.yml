@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - '.github/workflows/deploy.yml'
       - '.github/workflows/build_run.yml'
+      - '.github/workflows/check_compose.yml'
       - 'docker-compose.yml'
 
 jobs:
