@@ -4,13 +4,14 @@ services:
   backend:
     image: ${IMAGE}:${TAG}
     restart: always
+    command: --migrate
     expose:
       - ${PORT}
     volumes:
-      - sqlite-data:/app/data:rw
       - public-images:/app/public:rw
     networks:
       - traefik-net
+      - backend
     environment:
       PORT: ${PORT}
       RCON_HOST: ${RCON_HOST}
@@ -19,8 +20,19 @@ services:
       SESSION_SECRET: ${SESSION_SECRET}
       ORIGIN: ${ORIGIN}
       FK_SIGN: ${FK_SIGN}
+      NODE_ENV: ${ENVIRONMENT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_KEY: ${ADMIN_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
     labels:
       traefik.enable: true
+      traefik.docker.network: traefik-net
       traefik.http.routers.api.rule: 'Host(`${DEPLOY_HOST}`) && PathPrefix(`/api`)'
       traefik.http.routers.api.entrypoints: https
       traefik.http.routers.api.tls: true
@@ -40,11 +52,38 @@ services:
       options:
         max-size: 10m
 
+  db:
+    image: postgres:14-alpine
+    restart: always
+    expose:
+      - ${DB_PORT}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:rw
+    networks:
+      - backend
+    environment:
+      PGPORT: ${DB_PORT}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -d ${DB_NAME}
+      interval: 10s
+      retries: 3
+      timeout: 1s
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+
 networks:
   traefik-net:
     external: true
     name: traefik-net
+  backend:
 
 volumes:
-  sqlite-data:
+  postgres-data:
   public-images:

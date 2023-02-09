@@ -1,0 +1,35 @@
+name: Check compose
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check:
+    name: Check compose ok
+    runs-on: ubuntu-latest
+    environment: ${{ github.base_ref }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure docker-compose.yml
+        run: |
+          docker compose config
+        env:
+          PORT: ${{ vars.PORT }}
+          RCON_HOST: ${{ secrets.RCON_HOST }}
+          RCON_PORT: ${{ secrets.RCON_PORT }}
+          RCON_PASS: ${{ secrets.RCON_PASS }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          ORIGIN: ${{ vars.ORIGIN }}
+          FK_SIGN: ${{ secrets.FK_SIGN }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          IMAGE: ${{ github.repository }}
+          TAG: latest
+          ENVIRONMENT: ${{ github.ref_name }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_KEY: ${{ secrets.ADMIN_KEY }}

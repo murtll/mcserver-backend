@@ -1,0 +1,57 @@
+name: Build and run
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_run:
+    name: Build and run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build image
+        run: |
+          docker build -t ${{ github.repository }} .
+
+      - name: Run container
+        run: |
+          docker network create ${{ env.NETWORK }} --attachable
+          docker run -d \
+                     --name ${{ env.DB_HOST }} \
+                     --network ${{ env.NETWORK }} \
+                     -e POSTGRES_USER=${{ env.DB_USER }} \
+                     -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
+                     -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
+          docker run -d \
+                     --name test \
+                     --network ${{ env.NETWORK }} \
+                     -e NODE_ENV=master \
+                     -e PORT=${{ env.PORT }} \
+                     -e DB_PORT=5432 \
+                     -e DB_HOST=${{ env.DB_HOST }} \
+                     -e DB_NAME=${{ env.DB_NAME }} \
+                     -e DB_USER=${{ env.DB_USER }} \
+                     -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
+                     -e SESSION_SECRET=fakesecret ${{ github.repository }}
+          sleep 5
+          docker exec test wget --no-verbose --tries=1 --spider http://localhost:${{ env.PORT }}/
+        env:
+          PORT: 3000
+          DB_NAME: test
+          DB_USER: test
+          DB_PASSWORD: test
+          DB_HOST: test-db
+          NETWORK: test
+
+      - name: Test migrations and seeds
+        run: |
+          docker exec test yarn migrate
+          docker exec test yarn seed
+
+      - name: Tail logs
+        if: ${{ failure() }}
+        run: |
+          docker logs test

@@ -7,15 +7,20 @@ on:
       - master
     paths-ignore:
       - '.github/workflows/deploy.yml'
+      - '.github/workflows/build_run.yml'
+      - '.github/workflows/check_compose.yml'
       - 'docker-compose.yml'
 
 jobs:
   build:
+    concurrency:
+      group: ${{ github.job }}-${{ github.ref_name }}
+      cancel-in-progress: true
     name: Build
     runs-on: ubuntu-22.04
     outputs:
       image_name: ${{ steps.envs.outputs.image_name }}
-      image_tag: ${{ steps.bump-version.outputs.next-version }}
+      image_tag: ${{ steps.build.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -23,7 +28,6 @@ jobs:
 
       - run: |
           echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
-          echo image_tag=$(echo $GITHUB_SHA | cut -c 1-8) >> $GITHUB_OUTPUT
         id: envs
 
       - name: Get previous tag
@@ -32,7 +36,30 @@ jobs:
         with:
           fallback: 1.0.0
 
+      - name: Check if it is new version
+        run: |
+          CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
+          echo "Changed files since last tag (${{ steps.previous-tag.outputs.tag }}):"
+          printf '%s\n' "${CHANGED[@]}"
+          
+          while read LINE; do
+            CHANGED=( $(printf '%s\n' "${CHANGED[@]}" | grep -v "^$LINE" | cat) )
+
+            if [[ -z "${CHANGED[@]}" ]]; then
+              echo "All files are in .dockerignore -> no new version"
+              exit 0
+            fi
+          done < .dockerignore
+
+          if [[ -n "${CHANGED[@]}" ]]; then
+            echo NEW_VERSION=true >> $GITHUB_ENV
+              echo "Files"
+              printf '%s\n' "${CHANGED[@]}"
+              echo "are not in .dockerignore -> it's new version"
+          fi
+
       - name: Get commit message
+        if: ${{ env.NEW_VERSION }}
         run: |
           COMMIT_MSG="$(git log --pretty=format:"%s" -n 1)"
           VERSION_FRAGMENT=$(echo $COMMIT_MSG | awk '{ print $1 }' | sed 's/://g')
@@ -42,6 +69,7 @@ jobs:
           echo "VERSION_FRAGMENT=$VERSION_FRAGMENT" >> $GITHUB_ENV
 
       - name: Bump patch version
+        if: ${{ env.NEW_VERSION }}
         id: bump-version
         uses: christian-draeger/increment-semantic-version@1.0.2
         with:
@@ -49,16 +77,17 @@ jobs:
           version-fragment: ${{ env.VERSION_FRAGMENT }}
 
       - name: Make changelog
-        continue-on-error: true
+        if: ${{ env.NEW_VERSION }}
         id: changelog
         shell: bash
         run: |
           MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
           GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
-          echo "### Changes\n" > RELEASE.md
+          echo "### Changes" > RELEASE.md
           echo "$GIT_LOG" >> RELEASE.md
-          
+
       - name: Create release
+        if: ${{ env.NEW_VERSION }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,12 +99,21 @@ jobs:
           body_path: RELEASE.md
 
       - name: Build and push image
+        id: build
         run: |
+          if [[ -n "${{ steps.bump-version.outputs.next-version }}" ]]; then
+            TAG=${{ steps.bump-version.outputs.next-version }}
+          else
+            TAG=${{ steps.previous-tag.outputs.tag }}
+          fi
+
+          echo tag=$TAG >> $GITHUB_OUTPUT
+
           docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ github.token }}
           docker build . \
-            -t ${{ steps.envs.outputs.image_name }}:${{ steps.bump-version.outputs.next-version }} \
+            -t ${{ steps.envs.outputs.image_name }}:$TAG \
             -t ${{ steps.envs.outputs.image_name }}:latest
-          docker push ${{ steps.envs.outputs.image_name }}:${{ steps.bump-version.outputs.next-version }}
+          docker push ${{ steps.envs.outputs.image_name }}:$TAG
           docker push ${{ steps.envs.outputs.image_name }}:latest
 
       - name: Failure notify
@@ -93,6 +131,7 @@ jobs:
     needs:
       - build
     uses: murtll/mcserver-backend/.github/workflows/deploy.yml@master
+    if: ${{ github.ref_name == 'master' }}
     secrets: inherit
     with:
       image: ${{ needs.build.outputs.image_name }}

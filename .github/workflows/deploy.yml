@@ -1,5 +1,8 @@
 name: Deploy
 
+concurrency:
+  group: deploy-${{ github.ref_name }}
+
 on:
   workflow_dispatch:
   workflow_call:
@@ -27,8 +30,8 @@ jobs:
   deploy:
     name: Deploy
     environment:
-      name: master
-      url: https://mcbrawl.ru/api/
+      name: ${{ github.ref_name }}
+      url: ${{ github.ref_name == 'master' && 'https://mcbrawl.ru/api/' || 'https://dev.mcbrawl.ru/api/' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -58,22 +61,29 @@ jobs:
         run: |
           docker compose config > docker-compose.configured.yml
         env:
-          PORT: ${{ secrets.PORT }}
+          PORT: ${{ vars.PORT }}
           RCON_HOST: ${{ secrets.RCON_HOST }}
           RCON_PORT: ${{ secrets.RCON_PORT }}
           RCON_PASS: ${{ secrets.RCON_PASS }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-          ORIGIN: ${{ secrets.ORIGIN }}
+          ORIGIN: ${{ vars.ORIGIN }}
           FK_SIGN: ${{ secrets.FK_SIGN }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           IMAGE: ${{ env.IMAGE }}
           TAG: ${{ env.TAG }}
+          ENVIRONMENT: ${{ github.ref_name }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
 
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER }} "mkdir -p ${{ github.repository }}"
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.configured.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER }}:${{ github.repository }}/docker-compose.yml
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER }} "cd ${{ github.repository }} && docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} && docker compose pull && docker compose up -d"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ vars.SERVER }} "mkdir -p ${{ github.repository }}"
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.configured.yml ${{ secrets.SSH_USER }}@${{ vars.SERVER }}:${{ github.repository }}/docker-compose.yml
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ vars.SERVER }} "cd ${{ github.repository }} && docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} && docker compose pull && docker compose up -d"
 
       - name: Success notify
         if: ${{ success() }}
@@ -97,5 +107,5 @@ jobs:
 
       - name: Cleanup images
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER }} "docker image prune -af"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ vars.SERVER }} "docker image prune -af"
         continue-on-error: true

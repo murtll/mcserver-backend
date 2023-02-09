@@ -1,4 +1,4 @@
-FROM node:17-stretch-slim
+FROM node:17-buster-slim
 
 WORKDIR /app
 
@@ -7,8 +7,10 @@ RUN apt update && apt install build-essential python wget -y
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn
+RUN yarn && yarn global add knex
 
 COPY . .
 
-CMD ["yarn", "start"]
+RUN chmod +x *.sh
+
+ENTRYPOINT ./entrypoint.sh

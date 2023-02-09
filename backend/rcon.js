@@ -1,9 +1,7 @@
 import { Rcon } from 'rcon-client'
 
-export let rcon = null
-
-export const connectToRcon = () => {
-    rcon = new Rcon({
+export const getRcon = () => {
+    const rcon = new Rcon({
         host: process.env.RCON_HOST, 
         port: Number(process.env.RCON_PORT), 
         password: process.env.RCON_PASS
@@ -16,4 +14,6 @@ export const connectToRcon = () => {
         console.log("RCON error")
         console.log(e)
     })
+
+    return rcon
 }
