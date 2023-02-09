@@ -8,7 +8,7 @@ export function up(knex) {
         table.string('donater_username').notNullable()
         table.integer('donate_item_id').unsigned().notNullable().references('id').inTable('items').onDelete('cascade')
         table.integer('amount').unsigned().notNullable().defaultTo(1)
-        table.integer('date').unsigned().notNullable()
+        table.bigint('date').unsigned().notNullable()
         table.string('payment_id')
         table.integer('payment_price').unsigned()
     })

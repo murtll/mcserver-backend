@@ -13,7 +13,7 @@ export const OnlineStatsJob = new CronJob('0 */5 * * * *', () => {
 
 		const lastStat = await db.getLastStat()
 
-		if (new Date(lastStat.time).getHours() === date.getHours()) {
+		if (lastStat && new Date(lastStat.time).getHours() === date.getHours()) {
 			if (number > lastStat.number) {
 				db.updateStat(lastStat.id, number, time)
 			}

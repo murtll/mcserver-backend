@@ -8,7 +8,8 @@ import crypto from 'crypto'
 const router = express.Router()
 const rcon = getRcon()
 
-const adminKeyHash = process.env.ADMIN_KEY
+ // bigadminpassword - default key
+const adminKeyHash = process.env.ADMIN_KEY || 'aaa337acda132f1836775265ac68063a72b5800982495636f3463969de76376d'
 
 router.post('/command', auth, async (req, res) => {
     console.log(req.body)

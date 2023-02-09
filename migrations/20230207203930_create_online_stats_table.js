@@ -5,8 +5,8 @@
 export function up(knex) {
     return knex.schema.createTable('online_stats', function(table) {
         table.increments('id').notNullable().primary()
+        table.bigint('time').unsigned().notNullable()
         table.integer('number').unsigned().notNullable()
-        table.integer('time').unsigned().notNullable()
     })
 }
 
