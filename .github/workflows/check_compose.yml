@@ -1,4 +1,4 @@
-name: Build and run
+name: Check compose
 
 on:
   pull_request:
