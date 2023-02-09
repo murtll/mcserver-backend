@@ -8,7 +8,6 @@ services:
     expose:
       - ${PORT}
     volumes:
-      - sqlite-data:/app/data:rw
       - public-images:/app/public:rw
     networks:
       - traefik-net
@@ -87,5 +86,4 @@ networks:
 
 volumes:
   postgres-data:
-  sqlite-data:
   public-images:
