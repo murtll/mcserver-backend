@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'docker-compose.yml'
+      - '.github/workflows/check_compose.yml'
 
 jobs:
   check:

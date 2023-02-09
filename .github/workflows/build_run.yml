@@ -4,6 +4,11 @@ on:
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - '.github/workflows/build_deploy.yml'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/check_compose.yml'
+      - 'docker-compose.yml'
 
 jobs:
   build_run:
