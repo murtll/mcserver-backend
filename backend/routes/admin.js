@@ -2,9 +2,14 @@ import express from 'express'
 import fs from 'fs'
 import * as db from '../db.js'
 import { auth } from '../auth.js'
-import { rcon } from '../rcon.js'
+import { getRcon } from '../rcon.js'
+import crypto from 'crypto'
 
 const router = express.Router()
+const rcon = getRcon()
+
+ // bigadminpassword - default key
+const adminKeyHash = process.env.ADMIN_KEY || 'aaa337acda132f1836775265ac68063a72b5800982495636f3463969de76376d'
 
 router.post('/command', auth, async (req, res) => {
     console.log(req.body)
@@ -26,7 +31,7 @@ router.post('/command', auth, async (req, res) => {
 
 router.post('/login', async (req, res) => {
     try {
-        if (!(await db.checkAuthKey(req.headers.authorization))) {
+        if (!(crypto.createHash('sha256').update(req.headers.authorization).digest('hex') === adminKeyHash)) {
             res.status(400).json({
                 error: 'Invalid key'
             })

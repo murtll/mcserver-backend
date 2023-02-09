@@ -71,6 +71,13 @@ jobs:
           DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           IMAGE: ${{ env.IMAGE }}
           TAG: ${{ env.TAG }}
+          ENVIRONMENT: ${{ github.ref_name }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
 
       - name: Deploy
         run: |
