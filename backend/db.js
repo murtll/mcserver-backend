@@ -14,7 +14,7 @@ pg.types.setTypeParser(pg.types.builtins.NUMERIC, (value) => {
     return parseFloat(value);
 });
 
-const env = process.env.NODE_ENV || 'dev'
+const env = process.env.NODE_ENV || 'development'
 
 const db = Knex(knexConfig[env])
 
