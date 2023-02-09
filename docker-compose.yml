@@ -27,6 +27,10 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_KEY: ${ADMIN_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
     labels:
       traefik.enable: true
       traefik.http.routers.api.rule: 'Host(`${DEPLOY_HOST}`) && PathPrefix(`/api`)'
