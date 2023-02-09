@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - run: |
-          echo image_name=${GITHUB_REPOSITORY##*/} >> $GITHUB_OUTPUT
+          echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
         id: envs
 
       - name: Get previous tag
@@ -109,13 +109,12 @@ jobs:
 
           echo tag=$TAG >> $GITHUB_OUTPUT
 
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+          docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ github.token }}
           docker build . \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:$TAG \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:latest
-
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:$TAG
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.envs.outputs.image_name }}:latest
+            -t ${{ steps.envs.outputs.image_name }}:$TAG \
+            -t ${{ steps.envs.outputs.image_name }}:latest
+          docker push ${{ steps.envs.outputs.image_name }}:$TAG
+          docker push ${{ steps.envs.outputs.image_name }}:latest
 
       - name: Failure notify
         if: ${{ failure() }}
