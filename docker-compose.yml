@@ -33,6 +33,7 @@ services:
         condition: service_healthy
     labels:
       traefik.enable: true
+      traefik.docker.network: traefik-net
       traefik.http.routers.api.rule: 'Host(`${DEPLOY_HOST}`) && PathPrefix(`/api`)'
       traefik.http.routers.api.entrypoints: https
       traefik.http.routers.api.tls: true
