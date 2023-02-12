@@ -41,12 +41,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use(fileUpload({
-    useTempFiles: true,
-    tempFileDir: 'public/images'
+    useTempFiles: false,
 }))
-
-// for image sharing
-app.use(express.static('public'))
 
 // for cors support
 app.use(cors({ origin: process.env.ORIGIN, credentials: true }));

@@ -1,9 +1,11 @@
 import express from 'express'
 import fs from 'fs'
+import crypto from 'crypto'
+
 import * as db from '../db.js'
+import * as s3 from '../s3.js'
 import { auth } from '../auth.js'
 import { getRcon } from '../rcon.js'
-import crypto from 'crypto'
 
 const router = express.Router()
 const rcon = getRcon()
@@ -149,18 +151,8 @@ router.post('/image', auth, async (req, res) => {
             const image = req.files.picture;
             const category = req.body.category ? req.body.category : await db.getCategoryNameById(req.body.category_id)
 
-            if (!fs.existsSync(`public/images/${category}`)) {
-                fs.mkdirSync(`public/images/${category}`)
-            }
-    
-            image.mv(`public/images/${category}/${image.name}`, (err) => {
-                if (err) {
-                    console.log(error);
-                    return res.status(400).json({ error: err });
-                }
-            });
+            const imageKey = await s3.upload(image.data, `${category}/${image.name}`)
 
-            // await db.addItem({ ...req.body, picture: `/images/${req.body.category}/${image.name}`})
             res.json({ picture: `/images/${category}/${image.name}`})
         } else {
             res.status(400).json({error: 'No picture provided'})
