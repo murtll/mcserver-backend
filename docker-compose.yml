@@ -101,15 +101,16 @@ services:
       MINIO_ROOT_USER: ${S3_KEY_ID}
       MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
       MINIO_SITE_REGION: ${S3_REGION}
+      CONSOLE_SUBPATH: ${MINIO_CONSOLE_SUBPATH}
     labels:
       traefik.enable: true
       traefik.docker.network: traefik-net
-      traefik.http.routers.minio.rule: 'Host(`${DEPLOY_HOST}`) && PathPrefix(`/minio.console`)'
+      traefik.http.routers.minio.rule: 'Host(`${DEPLOY_HOST}`) && PathPrefix(`${MINIO_CONSOLE_SUBPATH}`)'
       traefik.http.routers.minio.entrypoints: https
       traefik.http.routers.minio.tls: true
       traefik.http.routers.minio.tls.certresolver: letsencrypt
       traefik.http.services.minio.loadBalancer.server.port: ${MINIO_CONSOLE_PORT}
-      traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes: /minio.console
+      traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes: ${MINIO_CONSOLE_SUBPATH}
       traefik.http.routers.minio.middlewares: minio-stripprefix
     healthcheck:
       test: curl --fail http://localhost:${MINIO_PORT}/minio/health/live
