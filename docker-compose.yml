@@ -101,7 +101,7 @@ services:
       MINIO_ROOT_USER: ${S3_KEY_ID}
       MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
       MINIO_SITE_REGION: ${S3_REGION}
-      CONSOLE_SUBPATH: ${MINIO_CONSOLE_SUBPATH}
+      MINIO_CONSOLE_SUBPATH: ${MINIO_CONSOLE_SUBPATH}
     labels:
       traefik.enable: true
       traefik.docker.network: traefik-net
