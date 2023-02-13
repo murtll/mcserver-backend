@@ -78,6 +78,13 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
+          S3_URL: ${{ vars.S3_URL }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          MINIO_CONSOLE_PORT: ${{ vars.MINIO_CONSOLE_PORT }}
+          MINIO_PORT: ${{ vars.MINIO_PORT }}
 
       - name: Deploy
         run: |
