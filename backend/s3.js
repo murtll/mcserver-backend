@@ -76,5 +76,3 @@ export const list = async () => {
 
     return response
 }
-
-get('privileges/anonimous.png')
