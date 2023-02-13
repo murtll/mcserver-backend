@@ -83,7 +83,7 @@ services:
   minio:
     image: quay.io/minio/minio:RELEASE.2023-02-10T18-48-39Z
     restart: always
-    command: server /data --address :${S3_PORT} --console-address :${MINIO_CONSOLE_PORT}
+    command: server /data --address :${MINIO_PORT} --console-address :${MINIO_CONSOLE_PORT}
     expose:
       - ${MINIO_PORT}
       - ${MINIO_CONSOLE_PORT}
