@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 while test $# != 0
 do
