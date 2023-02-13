@@ -27,6 +27,11 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       ADMIN_KEY: ${ADMIN_KEY}
+      S3_URL: ${S3_URL}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_REGION: ${S3_REGION}
+      S3_KEY_ID: ${S3_KEY_ID}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
     depends_on:
       db:
         condition: service_healthy
