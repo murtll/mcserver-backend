@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import * as db from './db.js'
+import * as s3 from './s3.js'
 import fileUpload from 'express-fileupload'
 import dotenv from 'dotenv'
 import session from 'express-session'
@@ -101,6 +102,20 @@ app.get('/:category', async (req, res) => {
         res.json(ans)
     } catch (error) {
         res.status(400).json({ error: error.toString() })
+    }
+})
+
+app.get('/images/:category/:image', async (req, res) => {
+    try {
+        const imageBytes = await s3.get(`${req.params.category}/${req.params.image}`)
+        res.send(Buffer.from(imageBytes, 'binary'))
+    } catch (error) {
+        console.log(error)
+        if (error.Code === 'NoSuchKey') {
+            res.status(404).json({ error: 'Image not found' })
+        } else {
+            res.status(400).json({ error: error.toString() })
+        }
     }
 })
 

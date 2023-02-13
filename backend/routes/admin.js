@@ -127,18 +127,7 @@ router.delete('/category', auth, async (req, res) => {
 
 router.get('/images', auth, async (req, res) => {
     try {
-        const data = []
-        for (const folder of (await fs.promises.readdir('public/images'))) {
-            if (fs.statSync(`public/images/${folder}`).isFile()) continue
-
-			const images = []
-
-            for (const file of (await fs.promises.readdir(`public/images/${folder}`)))
-            	images.push(`/images/${folder}/${file}`)
-
-           	data.push({folder: folder, images: images})
-
-        }
+        const data = await s3.list()
         res.json(data)   
     } catch (error) {
         res.status(400).json({ error: error.toString() })
@@ -153,14 +142,14 @@ router.post('/image', auth, async (req, res) => {
 
             const imageKey = await s3.upload(image.data, `${category}/${image.name}`)
 
-            res.json({ picture: `/images/${category}/${image.name}`})
+            res.json({ picture: `/images/${imageKey}`})
         } else {
             res.status(400).json({error: 'No picture provided'})
         }
 
     } catch (error) {
         console.log(error);
-        res.status(400).json({error: error})
+        res.status(400).json({ error: error.toString() })
     }
 })
 

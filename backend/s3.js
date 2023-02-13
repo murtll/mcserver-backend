@@ -34,11 +34,21 @@ export const upload = async (file, key) => {
                     Key: resultKey,
                     Body: file
                 })
-                const putData = await s3.send(putCommand)
+                await s3.send(putCommand)
                 return resultKey
             }
         }
     }
+}
+
+export const get = async (key) => {
+    const getCommand = new GetObjectCommand({
+        Bucket: defaultS3Bucket,
+        Key: key
+    })    
+    const response = await s3.send(getCommand)
+
+    return await response.Body.transformToByteArray()
 }
 
 export const list = async () => {      
@@ -48,19 +58,23 @@ export const list = async () => {
 
     const listData = await s3.send(listCommand)
 
-    const response = []
+    const folders = {}
 
     for (const file of listData.Contents) {
         const folder = file.Key.substring(0, file.Key.indexOf('/'))
 
-        if (!response[folder]) response[folder] = []
+        if (!folders[folder]) folders[folder] = []
 
-        response[folder].push(file.Key)
+        folders[folder].push(`/images/${file.Key}`)
     }
 
-    console.log(response)
+    const response = []
+
+    for (const folder of Object.keys(folders)) {
+        response.push({ folder: folder, images: folders[folder] })
+    }
 
     return response
 }
 
-list()
+get('privileges/anonimous.png')
