@@ -11,10 +11,6 @@ on:
       - '.github/workflows/check_compose.yml'
       - 'docker-compose.yml'
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   build:
     concurrency:
