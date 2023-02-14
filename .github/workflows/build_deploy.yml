@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - dev
     paths-ignore:
       - '.github/workflows/deploy.yml'
       - '.github/workflows/build_run.yml'
@@ -27,12 +28,14 @@ jobs:
           fetch-depth: 0
 
       - name: Get previous tag
+        if: ${{ github.ref_name == 'master' }}
         id: previous-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
           fallback: 1.0.0
 
       - name: Check if it is new version
+        if: ${{ github.ref_name == 'master' }}
         id: check-version
         run: |
           CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
@@ -96,7 +99,7 @@ jobs:
           body_path: RELEASE.md
 
       - run: |
-          echo tag=${{ steps.bump-version.outputs.next-version || steps.previous-tag.outputs.tag }} >> $GITHUB_OUTPUT
+          echo tag=${{ steps.bump-version.outputs.next-version || steps.previous-tag.outputs.tag || github.ref_name }} >> $GITHUB_OUTPUT
           echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
         id: image-tag-name
 
