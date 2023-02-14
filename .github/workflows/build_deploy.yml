@@ -11,6 +11,10 @@ on:
       - '.github/workflows/check_compose.yml'
       - 'docker-compose.yml'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     concurrency:
@@ -19,16 +23,12 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     outputs:
-      image_name: ${{ steps.envs.outputs.image_name }}
-      image_tag: ${{ steps.build.outputs.tag }}
+      image_name: ${{ steps.image-tag-name.outputs.image_name }}
+      image_tag: ${{ steps.image-tag-name.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - run: |
-          echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
-        id: envs
 
       - name: Get previous tag
         id: previous-tag
@@ -37,6 +37,7 @@ jobs:
           fallback: 1.0.0
 
       - name: Check if it is new version
+        id: check-version
         run: |
           CHANGED=( $(git diff ${{ steps.previous-tag.outputs.tag }}..HEAD --name-only) )
           echo "Changed files since last tag (${{ steps.previous-tag.outputs.tag }}):"
@@ -52,14 +53,14 @@ jobs:
           done < .dockerignore
 
           if [[ -n "${CHANGED[@]}" ]]; then
-            echo NEW_VERSION=true >> $GITHUB_ENV
+              echo new-version=true >> $GITHUB_OUTPUT
               echo "Files"
               printf '%s\n' "${CHANGED[@]}"
               echo "are not in .dockerignore -> it's new version"
           fi
 
       - name: Get commit message
-        if: ${{ env.NEW_VERSION }}
+        if: ${{ steps.check-version.outputs.new-version }}
         run: |
           COMMIT_MSG="$(git log --pretty=format:"%s" -n 1)"
           VERSION_FRAGMENT=$(echo $COMMIT_MSG | awk '{ print $1 }' | sed 's/://g')
@@ -69,7 +70,7 @@ jobs:
           echo "VERSION_FRAGMENT=$VERSION_FRAGMENT" >> $GITHUB_ENV
 
       - name: Bump patch version
-        if: ${{ env.NEW_VERSION }}
+        if: ${{ steps.check-version.outputs.new-version }}
         id: bump-version
         uses: christian-draeger/increment-semantic-version@1.0.2
         with:
@@ -77,9 +78,8 @@ jobs:
           version-fragment: ${{ env.VERSION_FRAGMENT }}
 
       - name: Make changelog
-        if: ${{ env.NEW_VERSION }}
+        if: ${{ steps.check-version.outputs.new-version }}
         id: changelog
-        shell: bash
         run: |
           MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
           GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
@@ -87,7 +87,7 @@ jobs:
           echo "$GIT_LOG" >> RELEASE.md
 
       - name: Create release
-        if: ${{ env.NEW_VERSION }}
+        if: ${{ steps.check-version.outputs.new-version }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,16 +98,14 @@ jobs:
           prerelease: false
           body_path: RELEASE.md
 
-      - name: Build and push image
-        id: build
-        run: |
-          if [[ -n "${{ steps.bump-version.outputs.next-version }}" ]]; then
-            TAG=${{ steps.bump-version.outputs.next-version }}
-          else
-            TAG=${{ steps.previous-tag.outputs.tag }}
-          fi
+      - run: |
+          echo tag=${{ steps.bump-version.outputs.next-version || steps.previous-tag.outputs.tag }} >> $GITHUB_OUTPUT
+          echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
+        id: image-tag-name
 
-          echo tag=$TAG >> $GITHUB_OUTPUT
+      - name: Set result tag
+        id: set-tag
+        run: |
 
           docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ github.token }}
           docker build . \
@@ -115,6 +113,25 @@ jobs:
             -t ${{ steps.envs.outputs.image_name }}:latest
           docker push ${{ steps.envs.outputs.image_name }}:$TAG
           docker push ${{ steps.envs.outputs.image_name }}:latest
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.envs.outputs.image_name }}:$TAG,${{ steps.envs.outputs.image_name }}:latest
+          cache-from: type=registry,ref=${{ steps.envs.outputs.image_name }}:buildcache
+          cache-to: type=registry,ref=${{ steps.envs.outputs.image_name }}:buildcache,mode=max
 
       - name: Failure notify
         if: ${{ failure() }}
