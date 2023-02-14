@@ -116,8 +116,8 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.image-tag-name.outputs.image_name }}:${{ steps.image-tag-name.outputs.tag }},${{ steps.image-tag-name.outputs.image_name }}:latest
-          cache-from: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}:buildcache
-          cache-to: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}-buildcache:${{ github.ref }}
+          cache-to: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}-buildcache:${{ github.ref }},mode=max
 
       - name: Failure notify
         if: ${{ failure() }}
