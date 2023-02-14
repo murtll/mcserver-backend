@@ -115,9 +115,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.envs.outputs.image_name }}:$TAG,${{ steps.envs.outputs.image_name }}:latest
-          cache-from: type=registry,ref=${{ steps.envs.outputs.image_name }}:buildcache
-          cache-to: type=registry,ref=${{ steps.envs.outputs.image_name }}:buildcache,mode=max
+          tags: ${{ steps.image-tag-name.outputs.image_name }}:${{ steps.image-tag-name.outputs.tag }},${{ steps.image-tag-name.outputs.image_name }}:latest
+          cache-from: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}:buildcache
+          cache-to: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}:buildcache,mode=max
 
       - name: Failure notify
         if: ${{ failure() }}
