@@ -76,6 +76,7 @@ jobs:
       - name: Make changelog
         if: ${{ steps.check-version.outputs.new-version }}
         id: changelog
+        shell: bash
         run: |
           MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
           GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
@@ -98,17 +99,6 @@ jobs:
           echo tag=${{ steps.bump-version.outputs.next-version || steps.previous-tag.outputs.tag }} >> $GITHUB_OUTPUT
           echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
         id: image-tag-name
-
-      - name: Set result tag
-        id: set-tag
-        run: |
-
-          docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ github.token }}
-          docker build . \
-            -t ${{ steps.envs.outputs.image_name }}:$TAG \
-            -t ${{ steps.envs.outputs.image_name }}:latest
-          docker push ${{ steps.envs.outputs.image_name }}:$TAG
-          docker push ${{ steps.envs.outputs.image_name }}:latest
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
