@@ -111,7 +111,7 @@ export const getOnlineStats = () => {
 }
 
 export const getLastStat = () => {
-    return db('online_stats').orderBy('time', 'desc').first()
+    return db('online_stats').first().orderBy('time', 'desc')
 }
 
 export const updateStat = (id, number, time) => {

@@ -15,21 +15,12 @@ export const OnlineStatsJob = new CronJob('0 * * * * *', () => {
 
 		const lastStat = await db.getLastStat()
 
-		console.log(`lastStat: ${lastStat}`)
-		
-		console.log(`lastStat hours: ${new Date(lastStat.time).getHours()}`)
-		console.log(`current date hours: ${date.getHours()}`)
-
 		if (lastStat && new Date(lastStat.time).getHours() == date.getHours()) {
-			console.log(`lastStat present && ${new Date(lastStat.time).getHours()} == ${date.getHours()}`)
-
 			if (number > lastStat.number) {
-				console.log('updating last stat')
-				db.updateStat(lastStat.id, number, time)
+				await db.updateStat(lastStat.id, number, time)
 			}
 		} else {
-			console.log('adding new stat')
-			db.addOnlineStat(number, time)
+			await db.addOnlineStat(number, time)
 		}
 	})
 	.catch((err) => {
