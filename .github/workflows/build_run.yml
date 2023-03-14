@@ -10,6 +10,15 @@ on:
       - '.github/workflows/check_compose.yml'
       - 'docker-compose.yml'
 
+env:
+  PORT: 3000
+  DB_NAME: test
+  DB_USER: test
+  DB_PASSWORD: test
+  DB_HOST: test-db
+  NETWORK: test-net
+  CONTAINER_NAME: test
+
 jobs:
   build_run:
     name: Build and run
@@ -28,17 +37,23 @@ jobs:
           tags: ${{ github.registry }}
           cache-from: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }}:buildcache
 
-      - name: Run container
+      - name: Create network
         run: |
           docker network create ${{ env.NETWORK }} --attachable
+
+      - name: Run db container
+        run: |
           docker run -d \
                      --name ${{ env.DB_HOST }} \
                      --network ${{ env.NETWORK }} \
                      -e POSTGRES_USER=${{ env.DB_USER }} \
                      -e POSTGRES_PASSWORD=${{ env.DB_PASSWORD }} \
                      -e POSTGRES_DB=${{ env.DB_NAME }} postgres:14-alpine
+
+      - name: Run container
+        run: |
           docker run -d \
-                     --name test \
+                     --name ${{ env.CONTAINER_NAME }} \
                      --network ${{ env.NETWORK }} \
                      -e NODE_ENV=master \
                      -e PORT=${{ env.PORT }} \
@@ -49,21 +64,14 @@ jobs:
                      -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
                      -e SESSION_SECRET=fakesecret ${{ github.repository }}
           sleep 5
-          docker exec test wget --no-verbose --tries=1 --spider http://localhost:${{ env.PORT }}/
-        env:
-          PORT: 3000
-          DB_NAME: test
-          DB_USER: test
-          DB_PASSWORD: test
-          DB_HOST: test-db
-          NETWORK: test
+          docker exec ${{ env.CONTAINER_NAME }} wget --no-verbose --tries=1 --spider http://localhost:${{ env.PORT }}/
 
       - name: Test migrations and seeds
         run: |
-          docker exec test yarn migrate
-          docker exec test yarn seed
+          docker exec ${{ env.CONTAINER_NAME }} yarn migrate
+          docker exec ${{ env.CONTAINER_NAME }} yarn seed
 
       - name: Tail logs
         if: ${{ failure() }}
         run: |
-          docker logs test
+          docker logs ${{ env.CONTAINER_NAME }}
