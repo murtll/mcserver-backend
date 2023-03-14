@@ -118,6 +118,7 @@ jobs:
   release:
     name: Release
     if: ${{ github.ref_name == 'master' && needs.build.outputs.image_tag != needs.build.outputs.previous_tag }}
+    runs-on: ubuntu-22.04
     needs:
       - build
     steps:
