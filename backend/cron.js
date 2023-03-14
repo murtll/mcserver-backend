@@ -16,6 +16,9 @@ export const OnlineStatsJob = new CronJob('0 * * * * *', () => {
 		const lastStat = await db.getLastStat()
 
 		console.log(`lastStat: ${lastStat}`)
+		
+		console.log(`lastStat hours: ${new Date(lastStat.time).getHours()}`)
+		console.log(`current date hours: ${date.getHours()}`)
 
 		if (lastStat && new Date(lastStat.time).getHours() == date.getHours()) {
 			console.log(`lastStat present && ${new Date(lastStat.time).getHours()} == ${date.getHours()}`)
