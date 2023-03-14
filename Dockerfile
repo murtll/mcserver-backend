@@ -1,11 +1,8 @@
-FROM node:17-buster-slim
+FROM node:17-alpine
 
 WORKDIR /app
 
-RUN apt update && apt install build-essential python wget -y
-
-COPY package.json ./
-COPY yarn.lock ./
+COPY package.json yarn.lock ./
 
 RUN yarn && yarn global add knex
 
