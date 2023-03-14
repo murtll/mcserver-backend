@@ -2,7 +2,7 @@ import { CronJob } from 'cron'
 import axios from 'axios'
 import * as db from './db.js'
 
-export const OnlineStatsJob = new CronJob('0 */5 * * * *', () => {
+export const OnlineStatsJob = new CronJob('0 * * * * *', () => {
   console.log('Cron working...')
   const date = new Date()
   const time = date.getTime()
@@ -10,14 +10,22 @@ export const OnlineStatsJob = new CronJob('0 */5 * * * *', () => {
   axios.get('https://api.minetools.eu/query/play.mcbrawl.ru/25565')
 	.then(async (res) => {
 		const number = res.data.Players
+		
+		console.log(`players: ${number}`)
 
 		const lastStat = await db.getLastStat()
 
-		if (lastStat && new Date(lastStat.time).getHours() === date.getHours()) {
+		console.log(`lastStat: ${lastStat}`)
+
+		if (lastStat && new Date(lastStat.time).getHours() == date.getHours()) {
+			console.log(`lastStat present && ${new Date(lastStat.time).getHours()} == ${date.getHours()}`)
+
 			if (number > lastStat.number) {
+				console.log('updating last stat')
 				db.updateStat(lastStat.id, number, time)
 			}
 		} else {
+			console.log('adding new stat')
 			db.addOnlineStat(number, time)
 		}
 	})
