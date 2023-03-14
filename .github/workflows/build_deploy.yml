@@ -22,6 +22,7 @@ jobs:
     outputs:
       image_name: ${{ steps.image-tag-name.outputs.image_name }}
       image_tag: ${{ steps.image-tag-name.outputs.tag }}
+      previous_tag: ${{ steps.previous-tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -76,28 +77,6 @@ jobs:
           current-version: ${{ steps.previous-tag.outputs.tag }}
           version-fragment: ${{ env.VERSION_FRAGMENT }}
 
-      - name: Make changelog
-        if: ${{ steps.check-version.outputs.new-version }}
-        id: changelog
-        shell: bash
-        run: |
-          MY_SHA="$(git log -1 --format=format:"%h" ${{ steps.previous-tag.outputs.tag }})"
-          GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
-          echo "### Changes" > RELEASE.md
-          echo "$GIT_LOG" >> RELEASE.md
-
-      - name: Create release
-        if: ${{ steps.check-version.outputs.new-version }}
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.bump-version.outputs.next-version }}
-          release_name: v${{ steps.bump-version.outputs.next-version }}
-          draft: false
-          prerelease: false
-          body_path: RELEASE.md
-
       - run: |
           echo tag=${{ steps.bump-version.outputs.next-version || steps.previous-tag.outputs.tag || github.ref_name }} >> $GITHUB_OUTPUT
           echo image_name=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }} >> $GITHUB_OUTPUT
@@ -118,7 +97,11 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.image-tag-name.outputs.image_name }}:${{ steps.image-tag-name.outputs.tag }},${{ steps.image-tag-name.outputs.image_name }}:latest
+          build-args:
+            APP_VERSION=${{ github.ref_name == 'master' && steps.image-tag-name.outputs.tag || github.ref_name }}
+          tags: |
+            ${{ steps.image-tag-name.outputs.image_name }}:${{ steps.image-tag-name.outputs.tag }}
+            ${{ steps.image-tag-name.outputs.image_name }}:latest
           cache-from: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}-buildcache:${{ github.ref_name }}
           cache-to: type=registry,ref=${{ steps.image-tag-name.outputs.image_name }}-buildcache:${{ github.ref_name }},mode=max
 
@@ -131,6 +114,31 @@ jobs:
           message: |
             ❌ ${{ github.actor }} pushed changes and job ${{ github.job }} failed.
             see workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  release:
+    name: Release
+    if: ${{ github.ref_name == 'master' && needs.build.outputs.image_tag != needs.build.outputs.previous_tag }}
+    needs:
+      - build
+    steps:
+      - name: Make changelog
+        shell: bash
+        run: |
+          MY_SHA="$(git log -1 --format=format:"%h" ${{ needs.build.outputs.previous_tag }})"
+          GIT_LOG="$(git log --pretty=format:"* %s" $MY_SHA..HEAD | uniq)"
+          echo "### Changes" > RELEASE.md
+          echo "$GIT_LOG" >> RELEASE.md
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.build.outputs.image_tag }}
+          release_name: v${{ needs.build.outputs.image_tag }}
+          draft: false
+          prerelease: false
+          body_path: RELEASE.md
 
   deploy:
     name: Deploy
