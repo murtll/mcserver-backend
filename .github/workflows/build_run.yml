@@ -23,6 +23,9 @@ jobs:
   build_run:
     name: Build and run
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.job }}-pr-${{ github.head_ref }}-to-${{ github.base_ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
 
@@ -35,7 +38,7 @@ jobs:
           context: .
           push: false
           tags: ${{ github.registry }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }}:buildcache
+          cache-from: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/${{ github.repository }}-buildcache:${{ github.base_ref }}
 
       - name: Create network
         run: |
