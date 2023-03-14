@@ -1,5 +1,8 @@
 FROM node:17-alpine
 
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./

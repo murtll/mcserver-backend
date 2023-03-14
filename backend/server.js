@@ -14,6 +14,7 @@ import { OnlineStatsJob } from './cron.js'
 dotenv.config()
 
 const PORT = process.env.PORT || 3001
+const APP_VERSION = process.env.APP_VERSION
 
 OnlineStatsJob.start()
 
@@ -49,7 +50,10 @@ app.use(fileUpload({
 app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
 
 app.get('/', (req, res) => {
-    res.json({ status: 'OK' })
+    res.json({ 
+        status: 'OK',
+        version: APP_VERSION
+    })
 })
 
 app.get('/categories', async (req, res) => {
@@ -124,6 +128,6 @@ app.use('/mcserver', mcServerRouter)
 app.use('/serverinfo', serverInfoRouter)
 
 app.listen(PORT, () => {
-    console.log(`Server started at http://localhost:${PORT}`)
+    console.log(`Server (version ${APP_VERSION}) started at http://localhost:${PORT}`)
 })
 
