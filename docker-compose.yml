@@ -50,7 +50,7 @@ services:
       traefik.http.routers.api-fk.tls: true
       traefik.http.routers.api-fk.tls.certresolver: letsencrypt
       traefik.http.routers.api-fk.entrypoints: api-fk
-      traefik.http.routers.api-fk.rule: 'Host(`${DEPLOY_HOST}`)'
+      traefik.http.routers.api-fk.rule: 'Host(`${DEPLOY_HOST}:3002`)'
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${PORT}/
       interval: 10s
