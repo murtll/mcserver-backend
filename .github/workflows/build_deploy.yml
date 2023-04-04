@@ -122,6 +122,10 @@ jobs:
     needs:
       - build
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Make changelog
         shell: bash
         run: |
