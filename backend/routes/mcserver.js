@@ -58,10 +58,10 @@ router.post('/process-payment', async (req, res) => {
 		}
 
 		if (item.command) {
-            var command = item.command.replaceAll('%user%', info.ik_x_username)
+        	var command = item.command.replaceAll('%user%', info.ik_x_username)
 
             if (info.ik_x_number)
-    		   command = command.replaceAll('%number%', info.ik_x_number)
+    			command = command.replaceAll('%number%', info.ik_x_number)
         
 		   console.log(`sending ${command} to server`)
 		   await rcon.connect()
@@ -89,7 +89,7 @@ router.post('/process-payment-fk', async (req, res) => {
     console.log('from: ' + ip)
 
     if (!trustedIps.includes(ip)) {
-        res.status(400).json({ error: 'Bad IP' })
+        return res.status(400).json({ error: 'Bad IP' })
     }
 
     const info = req.body
