@@ -102,7 +102,7 @@ export const getLastDonates = () => {
         .select('donates.id as id', 'donater_username as donaterUsername', 'items.id as itemId', 'items.name as name', 'picture', 'price', 'categories.link', 'donates.amount as amount', 'date')
         .innerJoin('items', 'donates.donate_item_id', '=', 'items.id')
         .innerJoin('categories', 'items.category_id', '=', 'categories.id')
-        .orderBy('donates.id', 'desc')
+        .orderBy('donates.date', 'desc')
         .limit(5)
 }
 
