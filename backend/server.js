@@ -7,16 +7,12 @@ import dotenv from 'dotenv'
 import session from 'express-session'
 
 import adminRouter from './routes/admin.js'
-import serverInfoRouter from './routes/serverinfo.js'
 import mcServerRouter from './routes/mcserver.js'
-import { OnlineStatsJob } from './cron.js'
 
 dotenv.config()
 
 const PORT = process.env.PORT || 3001
 const APP_VERSION = process.env.APP_VERSION
-
-OnlineStatsJob.start()
 
 const app = express()
 
@@ -125,7 +121,6 @@ app.get('/images/:category/:image', async (req, res) => {
 
 app.use('/admin', adminRouter)
 app.use('/mcserver', mcServerRouter)
-app.use('/serverinfo', serverInfoRouter)
 
 app.listen(PORT, () => {
     console.log(`Server (version ${APP_VERSION}) started at http://localhost:${PORT}`)
