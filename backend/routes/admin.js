@@ -50,6 +50,17 @@ router.post('/login', async (req, res) => {
     }
 })
 
+router.get('/item', auth, async (req, res) => {
+    try {
+        const item = await db.getItemById(req.query.id)
+
+        res.json(item)
+
+    } catch (error) {
+        res.status(400).json({ error: error.toString() })
+    }
+})
+
 router.post('/item', auth, async (req, res) => {
     try {
         await db.addItem(req.body)
@@ -57,7 +68,7 @@ router.post('/item', auth, async (req, res) => {
         res.json({ added: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -68,7 +79,7 @@ router.put('/item', auth, async (req, res) => {
         res.json({ updated: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -79,7 +90,7 @@ router.delete('/item', auth, async (req, res) => {
         res.json({ deleted: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -99,7 +110,7 @@ router.post('/category', auth, async (req, res) => {
         res.json({ added: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -110,7 +121,7 @@ router.put('/category', auth, async (req, res) => {
         res.json({ updated: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -121,7 +132,7 @@ router.delete('/category', auth, async (req, res) => {
         res.json({ deleted: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -168,7 +179,7 @@ router.post('/promo', auth, async (req, res) => {
         res.json({ added: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -179,7 +190,7 @@ router.delete('/promo', auth, async (req, res) => {
         res.json({ deleted: req.body })
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
@@ -190,7 +201,7 @@ router.get('/promos', auth, async (req, res) => {
         res.json(result)
 
     } catch (error) {
-        res.status(400).json({ error: error })
+        res.status(400).json({ error: error.toString() })
     }
 })
 
